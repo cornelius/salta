@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <!--
+    The printed frame of the 1899 rules sheet, cut for CSS border-image with a
+    slice of 100: woven corner blocks in the four corners, and a band of close
+    hatching along each edge that tiles. Strokes are spaced on a factor of 100
+    so a repeated edge slice joins without a seam.
+  -->
+  <defs>
+    <!-- One corner block: two fans of quarter arcs crossing each other. -->
+    <g id="corner">
+      <rect width="100" height="100" fill="#20222b" />
+      <g fill="none" stroke="#e9e6dd" stroke-width="9">
+        <path d="M100 30 A30 30 0 0 0 70 0" />
+        <path d="M100 58 A58 58 0 0 0 42 0" />
+        <path d="M100 86 A86 86 0 0 0 14 0" />
+        <path d="M0 30 A30 30 0 0 1 30 100" />
+        <path d="M0 58 A58 58 0 0 1 58 100" />
+        <path d="M0 86 A86 86 0 0 1 86 100" />
+      </g>
+    </g>
+
+    <!-- One edge tile: hatching across the band, inset from the slice edges. -->
+    <g id="band-h">
+      <g stroke="#20222b" stroke-width="4">
+        <path d="M4 33 V67 M14 33 V67 M24 33 V67 M34 33 V67 M44 33 V67
+                 M54 33 V67 M64 33 V67 M74 33 V67 M84 33 V67 M94 33 V67" />
+      </g>
+    </g>
+    <g id="band-v">
+      <g stroke="#20222b" stroke-width="4">
+        <path d="M33 4 H67 M33 14 H67 M33 24 H67 M33 34 H67 M33 44 H67
+                 M33 54 H67 M33 64 H67 M33 74 H67 M33 84 H67 M33 94 H67" />
+      </g>
+    </g>
+  </defs>
+
+  <use href="#corner" x="0" y="0" />
+  <use href="#corner" x="200" y="0" transform="rotate(90 250 50)" />
+  <use href="#corner" x="0" y="200" transform="rotate(-90 50 250)" />
+  <use href="#corner" x="200" y="200" transform="rotate(180 250 250)" />
+
+  <use href="#band-h" x="100" y="0" />
+  <use href="#band-h" x="100" y="200" />
+  <use href="#band-v" x="0" y="100" />
+  <use href="#band-v" x="200" y="100" />
+</svg>

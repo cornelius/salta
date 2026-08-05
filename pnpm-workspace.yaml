@@ -1,0 +1,8 @@
+# Dependency versions younger than 24h are not resolved, so a compromised
+# release has to survive a day of public scrutiny before it can land here.
+minimumReleaseAge: 1440
+
+# Install-time scripts are refused unless listed. esbuild's postinstall links the
+# platform binary Vite needs; nothing else here runs at install.
+allowBuilds:
+  esbuild: true

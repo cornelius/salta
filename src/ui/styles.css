@@ -1,0 +1,318 @@
+/*
+ * The page dresses the game in the materials of the original set: the card tint
+ * of the board's light squares, the dark ink of its frame, and a serif face for
+ * text. The two pigments are reserved for the players -- nothing else on the
+ * page is allowed to be red or green, so a coloured mark always means a side.
+ */
+:root {
+  --ink: #2c2630;
+  --ink-soft: #6a6070;
+  --card: #efe6d5;
+  --card-deep: #e3d7c1;
+  --frame: #372f3c;
+  --green: #33734d;
+  --red: #d81a25;
+  --accent: #b8892f;
+  --radius: 6px;
+  --panel-width: 20rem;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  background: var(--card);
+  color: var(--ink);
+  font:
+    16px / 1.55 Georgia,
+    "Iowan Old Style",
+    "Times New Roman",
+    serif;
+}
+
+#app {
+  max-width: 68rem;
+  margin: 0 auto;
+}
+
+/* --- masthead ---------------------------------------------------------- */
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 2px solid var(--frame);
+  margin-bottom: 1.6rem;
+}
+
+.masthead h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 2.9rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.subtitle {
+  margin: 0.15rem 0 0;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.masthead-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.4rem;
+}
+
+.link {
+  color: var(--ink);
+  text-decoration-color: var(--accent);
+  text-underline-offset: 4px;
+}
+
+.link:hover {
+  color: var(--accent);
+}
+
+/* --- layout ------------------------------------------------------------ */
+
+.table {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.8rem;
+  align-items: flex-start;
+}
+
+.board {
+  flex: 1 1 22rem;
+  min-width: 17rem;
+  max-width: 40rem;
+  height: auto;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 14px rgb(44 38 48 / 22%);
+  touch-action: manipulation;
+}
+
+.panel {
+  flex: 0 0 var(--panel-width);
+  max-width: 100%;
+}
+
+/* --- board interaction ------------------------------------------------- */
+
+.piece {
+  cursor: pointer;
+  /* Pieces keep their identity across moves, so a move can be a slide. */
+  transition: transform 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .piece {
+    transition: none;
+  }
+}
+
+.hint-selected {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 6;
+}
+
+.hint-move {
+  fill: var(--accent);
+  fill-opacity: 0.75;
+}
+
+.hint-move.hint-jump {
+  fill: #e8731c;
+  fill-opacity: 0.9;
+}
+
+.hint-over {
+  fill: #e8731c;
+  fill-opacity: 0.28;
+}
+
+/* --- panel ------------------------------------------------------------- */
+
+.turn {
+  margin: 0 0 1rem;
+  /* Two lines are reserved so a longer message never pushes the panel down. */
+  min-height: 3.1rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  border-left: 6px solid transparent;
+  padding-left: 0.7rem;
+}
+
+.turn[data-player="green"] {
+  border-left-color: var(--green);
+}
+
+.turn[data-player="red"] {
+  border-left-color: var(--red);
+}
+
+/*
+ * The Salta prompt keeps its space whether or not it has anything to say. The
+ * board must not jump down the page when a player overlooks a jump.
+ */
+.notice {
+  min-height: 7.2rem;
+  margin-bottom: 1.2rem;
+  padding: 0.8rem 0.9rem;
+  border: 2px dashed transparent;
+  border-radius: var(--radius);
+}
+
+.notice[data-open="yes"] {
+  border-color: var(--accent);
+  background: var(--card-deep);
+}
+
+.notice-text {
+  margin: 0 0 0.6rem;
+  min-height: 2.9rem;
+  font-size: 0.95rem;
+}
+
+.notice-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.notice[data-open="no"] .notice-actions {
+  visibility: hidden;
+}
+
+.status {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: baseline;
+  gap: 0.35rem 0.9rem;
+  margin: 0 0 1.4rem;
+  padding: 0.9rem 0 1.1rem;
+  border-top: 1px solid var(--card-deep);
+  border-bottom: 1px solid var(--card-deep);
+}
+
+.status dt {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.status dt small {
+  font-size: 0.8em;
+}
+
+.status .count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0;
+  /* A fixed slot in figure widths, so three digits do not widen the column. */
+  min-width: 3.6ch;
+  justify-content: flex-end;
+  font-variant-numeric: tabular-nums;
+}
+
+.swatch {
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 50%;
+  align-self: center;
+}
+
+.count[data-player="green"] .swatch {
+  background: var(--green);
+}
+
+.count[data-player="red"] .swatch {
+  background: var(--red);
+}
+
+/* --- controls ---------------------------------------------------------- */
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.button {
+  padding: 0.45rem 1.1rem;
+  border: 2px solid var(--frame);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--card-deep);
+}
+
+.button.primary {
+  background: var(--frame);
+  color: var(--card);
+}
+
+.button.primary:hover:not(:disabled) {
+  background: var(--ink);
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.field-label {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.field.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+select {
+  padding: 0.3rem 0.4rem;
+  border: 1px solid var(--frame);
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.95rem;
+}
+
+.hint {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  max-width: 22rem;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
