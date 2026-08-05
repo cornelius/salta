@@ -25,6 +25,7 @@ make preview                    # serve the production build
 | `dev/adr/` | Why the project looks the way it does |
 | `docs/rules.de.md` | The 1899 rules, transcribed |
 | `docs/rules.en.md` | The same, translated |
+| `docs/history.md` | Where the game came from, and what is known about this set |
 | `assets/README.md` | What each photograph shows and what was derived from it |
 
 ## The source is a physical object

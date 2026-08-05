@@ -7,6 +7,11 @@ across to the far side and re-form it there in the same order it set out in. It
 moves like draughts and nothing is ever captured: a piece that finds an opponent
 diagonally in front of it must jump over it, and both pieces stay on the board.
 
+It was briefly a craze. Between 1900 and the First World War it won a gold medal
+in Paris, drew tournaments at Monte Carlo, and was played by Sarah Bernhardt and
+by Emanuel Lasker; then it vanished. `docs/history.md` has that story and what is
+known about this particular set.
+
 This is a playable reconstruction of one particular copy of that game, built from
 photographs of the set: the board, the thirty pieces, and the printed rules sheet
 that came in the box.
@@ -26,7 +31,7 @@ should go.
 | `src/ui` | The playing interface |
 | `src/i18n` | English and German |
 | `rules/` | The 1899 rules sheet, set as it was printed |
-| `docs/` | The rules transcribed, and translated |
+| `docs/` | The rules transcribed and translated, and where the game came from |
 | `assets/` | The photographs everything was derived from |
 | `dev/adr/` | Why the project looks the way it does |
 
