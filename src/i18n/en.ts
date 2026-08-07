@@ -35,6 +35,8 @@ export const en = {
   'control.rules': 'Rules',
 
   'rules.link': 'Read the original rules',
+  'rules.version': 'Version',
+  'rules.facsimile': 'Facsimile',
   'a11y.board': 'Salta board, ten by ten squares',
   'a11y.target': 'The finished board: each side across from where it started, in the same order',
   'a11y.piece': '{player} {device} {rank} on {square}',

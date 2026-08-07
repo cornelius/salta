@@ -52,11 +52,6 @@ body {
   color: #efeae1;
 }
 
-footer.away {
-  margin: 1.5rem auto 0;
-  max-width: 52rem;
-}
-
 .away a {
   color: #efeae1;
 }
@@ -360,13 +355,24 @@ footer.away {
   font-size: 0.8rem;
 }
 
+/*
+ * A square is a square whether or not a piece is standing on it. Left to size
+ * themselves, the four empty ranks in the middle of the figure collapse to the
+ * height of an empty line and the board stops looking like a board, so every
+ * cell is given the same box and the row labels get a column of their own.
+ */
 .reader th,
 .reader td {
-  min-width: 1.9rem;
-  padding: 0.15rem 0.3rem;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0.1rem 0.25rem;
   border: 1px solid rgb(32 34 43 / 22%);
   text-align: center;
   white-space: nowrap;
+}
+
+.reader tr > :first-child {
+  width: 2.6rem;
 }
 
 .reader th {

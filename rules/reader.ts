@@ -8,6 +8,7 @@
  */
 import de from '../docs/rules.de.md?html'
 import en from '../docs/rules.en.md?html'
+import { preferredLocale, translator } from '../src/i18n'
 
 const FACSIMILE = 'facsimile'
 
@@ -19,6 +20,17 @@ const READABLE: Record<string, { readonly html: string; readonly lang: string }>
 const facsimile = document.querySelector<HTMLElement>('#facsimile')
 const reader = document.querySelector<HTMLElement>('#reader')
 const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-view]')]
+
+/**
+ * The switch is chrome, not the sheet, so it speaks whichever language the game
+ * was last set to. The two readable versions name themselves and stay as they
+ * are: Deutsch is Deutsch in any language.
+ */
+const t = translator(preferredLocale())
+const label = document.querySelector('#views-label')
+if (label !== null) label.textContent = `${t('rules.version')}:`
+const facsimileButton = document.querySelector('[data-view="facsimile"]')
+if (facsimileButton !== null) facsimileButton.textContent = t('rules.facsimile')
 
 function show(view: string): void {
   const readable = READABLE[view]

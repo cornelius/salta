@@ -37,6 +37,8 @@ export const de: Record<MessageKey, string> = {
   'control.rules': 'Spielregeln',
 
   'rules.link': 'Die Originalregeln lesen',
+  'rules.version': 'Fassung',
+  'rules.facsimile': 'Faksimile',
   'a11y.board': 'Saltabrett, zehn mal zehn Felder',
   'a11y.target':
     'Das Brett am Ziel: jede Seite gegenüber ihrer Anfangsstellung, in derselben Reihenfolge',

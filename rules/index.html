@@ -14,7 +14,7 @@
     <nav class="away">
       <a href="../">&larr; Salta</a>
       <span class="views">
-        Fassung:
+        <span id="views-label">Fassung:</span>
         <button type="button" data-view="facsimile" aria-pressed="true">Faksimile</button>
         <button type="button" data-view="de" aria-pressed="false">Deutsch</button>
         <button type="button" data-view="en" aria-pressed="false">English</button>
@@ -178,15 +178,6 @@
     </div>
 
     <article class="sheet reader" id="reader" hidden></article>
-
-    <footer class="away">
-      <p>
-        Nachbildung des beiliegenden Regelblatts. Die Diagramme sind aus derselben Zeichnung erzeugt
-        wie das Spielbrett, die Fotografien der Vorlage liegen unter
-        <code>assets/photos/</code> im Repository. Die lesbaren Fassungen sind die Transkription und
-        die Übersetzung aus <code>docs/</code>, hier gesetzt statt verlinkt.
-      </p>
-    </footer>
 
     <script type="module" src="./facsimile.ts"></script>
     <script type="module" src="./reader.ts"></script>
