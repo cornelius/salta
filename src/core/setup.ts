@@ -57,6 +57,15 @@ export function targetFormation(player: Player): ReadonlyMap<Square, Piece> {
   return formation(player, (d) => targetRow(player, d))
 }
 
+/** The board with both sides home: every piece on the square it has to reach. */
+export function targetPosition(): Position {
+  const out = new Map<Square, Piece>()
+  for (const player of PLAYERS) {
+    for (const [sq, piece] of targetFormation(player)) out.set(sq, piece)
+  }
+  return out
+}
+
 /** The square a specific piece has to reach. */
 export function targetSquare(piece: Piece): Square {
   const squares = rowSquaresFromLeft(targetRow(piece.player, piece.device), piece.player)

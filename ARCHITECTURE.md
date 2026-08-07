@@ -45,8 +45,12 @@ presenting it -- a computer opponent above all -- uses `legalMoves`.**
 ## The artwork layer
 
 `symbols.ts` draws the three devices in a 100x100 box. `piece.ts` composes a disc
-and lays its devices out. `board.ts` draws the hundred squares and the frame.
-Nothing here holds state.
+and lays its devices out. `board.ts` draws the hundred squares and the frame, and
+`diagramMarkup` there draws a whole position standing on them in one go -- the
+figures in the rules facsimile, the target in the panel, the preview page. The
+game does not use it: there a piece is an element that keeps its identity from
+move to move, so that a move can be a slide rather than a redraw. Nothing here
+holds state.
 
 Colours are not written into the drawing code. Every function takes a `Palette`
 from `theme.ts`, of which there are two: `SET_PALETTE` renders the set as it looks
@@ -75,6 +79,10 @@ carry.
 The board's frame and squares are drawn once. Piece elements are created once
 each and keyed by piece identity, so a move is a change of transform and CSS can
 slide it. Changing the locale re-renders the shell.
+
+The panel also carries a small figure of the finished board, which is where the
+order of the formation and the direction of play can be read off rather than
+remembered. It is drawn once per shell, and again when the display mode changes.
 
 Two layout rules the panel obeys, so the board never moves under the player's
 cursor: the Salta prompt keeps its space whether or not it has anything to say,

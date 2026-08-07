@@ -9,8 +9,7 @@
 import { square } from '../src/core/board'
 import { initialPosition, type Position, targetSquare } from '../src/core/setup'
 import { type Piece, PLAYERS, type Square } from '../src/core/types'
-import { BOARD_SIZE, boardMarkup, squareOrigin } from '../src/render/board'
-import { pieceMarkup } from '../src/render/piece'
+import { BOARD_SIZE, diagramMarkup } from '../src/render/board'
 import { PRINT_PALETTE } from '../src/render/theme'
 
 /** The row labels the sheet prints beside each diagram, against the board edge. */
@@ -45,14 +44,10 @@ function finalPosition(): Position {
 }
 
 function diagram(position: Position): string {
-  const pieces = [...position].map(([sq, piece]) => {
-    const { x, y } = squareOrigin(sq)
-    return `<g transform="translate(${x} ${y})">${pieceMarkup(piece, PRINT_PALETTE)}</g>`
-  })
   return (
     `<svg viewBox="0 0 ${BOARD_SIZE} ${BOARD_SIZE}" class="plate" role="img" ` +
     `aria-label="Saltabrett mit Steinen">` +
-    `${boardMarkup({ palette: PRINT_PALETTE, showMakerMark: false })}${pieces.join('')}</svg>`
+    `${diagramMarkup(position, { palette: PRINT_PALETTE, showMakerMark: false })}</svg>`
   )
 }
 

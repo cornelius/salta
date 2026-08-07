@@ -16,6 +16,7 @@ export const en = {
   'salta.letStand': 'Let it stand',
   'salta.called': 'Salta! {player} must take the jump.',
 
+  'status.target': 'Where the pieces end up',
   'status.moves': 'Moves played',
   'status.remaining': 'Moves still to go',
   'status.limit': 'of {limit}',
@@ -35,6 +36,7 @@ export const en = {
 
   'rules.link': 'Read the original rules',
   'a11y.board': 'Salta board, ten by ten squares',
+  'a11y.target': 'The finished board: each side across from where it started, in the same order',
   'a11y.piece': '{player} {device} {rank} on {square}',
   'device.sun': 'sun',
   'device.moon': 'moon',

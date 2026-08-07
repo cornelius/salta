@@ -18,6 +18,7 @@ export const de: Record<MessageKey, string> = {
   'salta.letStand': 'Stehen lassen',
   'salta.called': 'Salta! {player} muss springen.',
 
+  'status.target': 'Wohin die Steine müssen',
   'status.moves': 'Gezogen',
   'status.remaining': 'Noch zu ziehen',
   'status.limit': 'von {limit}',
@@ -37,6 +38,8 @@ export const de: Record<MessageKey, string> = {
 
   'rules.link': 'Die Originalregeln lesen',
   'a11y.board': 'Saltabrett, zehn mal zehn Felder',
+  'a11y.target':
+    'Das Brett am Ziel: jede Seite gegenüber ihrer Anfangsstellung, in derselben Reihenfolge',
   'a11y.piece': '{player} {device} {rank} auf {square}',
   'device.sun': 'Sonne',
   'device.moon': 'Mond',

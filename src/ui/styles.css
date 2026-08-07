@@ -144,8 +144,13 @@ body {
 
 .turn {
   margin: 0 0 1rem;
-  /* Two lines are reserved so a longer message never pushes the panel down. */
-  min-height: 3.1rem;
+  /*
+   * Two lines are reserved, and every message this slot can carry fits in two,
+   * in both languages. The reservation is in em and not rem: it has to be two
+   * lines of *this* text, which is larger than the root, or a message that wraps
+   * pushes the whole panel down as it appears.
+   */
+  min-height: calc(2 * 1.55em);
   font-size: 1.15rem;
   font-weight: 700;
   border-left: 6px solid transparent;
@@ -162,10 +167,13 @@ body {
 
 /*
  * The Salta prompt keeps its space whether or not it has anything to say. The
- * board must not jump down the page when a player overlooks a jump.
+ * board must not jump down the page when a player overlooks a jump. Its height
+ * is not set here: it comes from the text slot below, which is two lines whether
+ * or not there is anything in them, and from the buttons, which are hidden
+ * rather than removed. A figure of its own here would only be a guess at their
+ * sum, and a guess that goes stale.
  */
 .notice {
-  min-height: 7.2rem;
   margin-bottom: 1.2rem;
   padding: 0.8rem 0.9rem;
   border: 2px dashed transparent;
@@ -179,7 +187,7 @@ body {
 
 .notice-text {
   margin: 0 0 0.6rem;
-  min-height: 2.9rem;
+  min-height: calc(2 * 1.55em);
   font-size: 0.95rem;
 }
 
@@ -192,12 +200,41 @@ body {
   visibility: hidden;
 }
 
+/*
+ * The finished board, as a thumbnail. It is a figure and not a second board:
+ * nothing in it responds to a click, and it is kept small enough that the whole
+ * panel still stands beside the board rather than running past it. At this size
+ * one device is not meant to be told from another -- what has to read is which
+ * row is which, in what order, and which way each side is going.
+ */
+.target {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 0 0 0.9rem;
+}
+
+.target figcaption {
+  flex: 1 1 auto;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+.target-board {
+  flex: 0 0 auto;
+  display: block;
+  width: 8rem;
+  height: auto;
+  border-radius: calc(var(--radius) / 2);
+  pointer-events: none;
+}
+
 .status {
   display: grid;
   grid-template-columns: 1fr auto auto;
   align-items: baseline;
   gap: 0.35rem 0.9rem;
-  margin: 0 0 1.4rem;
+  margin: 0 0 1.1rem;
   padding: 0.9rem 0 1.1rem;
   border-top: 1px solid var(--card-deep);
   border-bottom: 1px solid var(--card-deep);
@@ -293,6 +330,21 @@ body {
   flex-direction: row;
   align-items: center;
   gap: 0.5rem;
+}
+
+/*
+ * What a setting does is on the setting, not under it. The panel has to stand
+ * beside the board without running past it, and two paragraphs of explanation
+ * are what pushed it past. The dotted underline is the only thing saying there
+ * is more to read.
+ */
+.field.checkbox[title] {
+  cursor: help;
+}
+
+.field.checkbox[title] span {
+  text-decoration: underline dotted var(--ink-soft);
+  text-underline-offset: 3px;
 }
 
 select {

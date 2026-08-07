@@ -33,6 +33,12 @@ describe('the board', () => {
     expect(root.querySelectorAll('[data-piece]')).toHaveLength(30)
   })
 
+  it('shows what a finished board looks like, in the panel', () => {
+    // Thirty pieces, and no way to click one: it is a figure, not a second board.
+    expect(root.querySelectorAll('#target .target-board > g[transform]')).toHaveLength(30)
+    expect(root.querySelectorAll('#target [data-piece]')).toHaveLength(0)
+  })
+
   it('opens with green to move', () => {
     expect(text('#turn')).toContain('Green')
   })
@@ -127,7 +133,14 @@ describe("grandma's copy", () => {
 
   it('rules the owner rectangle onto the board', () => {
     toggleCopy()
-    expect(root.querySelectorAll('.owner-marks rect')).toHaveLength(2)
+    expect(root.querySelectorAll('#board .owner-marks rect')).toHaveLength(2)
+  })
+
+  it('draws the figure in the panel the same way', () => {
+    expect(root.querySelectorAll('#target .owner-marks')).toHaveLength(0)
+    toggleCopy()
+    expect(root.querySelectorAll('#target .owner-marks')).toHaveLength(1)
+    expect(root.querySelectorAll('#target .cut-card')).toHaveLength(2)
   })
 
   it('draws the two lost pieces on card, and leaves the rest printed', () => {

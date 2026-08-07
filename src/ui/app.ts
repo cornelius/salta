@@ -11,6 +11,7 @@ import {
   waiveSalta,
 } from '../core/game'
 import { isJump } from '../core/rules'
+import { targetPosition } from '../core/setup'
 import { type Move, type Piece, pieceId, type Square } from '../core/types'
 import {
   LOCALE_NAMES,
@@ -21,7 +22,7 @@ import {
   type Translate,
   translator,
 } from '../i18n'
-import { BOARD_SIZE, boardMarkup, CELL, squareOrigin } from '../render/board'
+import { BOARD_SIZE, boardMarkup, CELL, diagramMarkup, squareOrigin } from '../render/board'
 import { isReplacement, pieceMarkup, replacementMarkup } from '../render/piece'
 import { OWNER_MARKS } from '../render/theme'
 
@@ -46,6 +47,7 @@ interface View {
   readonly printing: SVGGElement
   readonly pieces: Map<string, SVGGElement>
   readonly hints: SVGGElement
+  readonly target: HTMLElement
   readonly turn: HTMLElement
   readonly notice: HTMLElement
   readonly noticeText: HTMLElement
@@ -84,6 +86,7 @@ export function mount(root: HTMLElement): void {
     showCopy = next
     rememberCopy(next)
     view.printing.innerHTML = boardMarkup(showCopy ? { marks: OWNER_MARKS } : {})
+    view.target.innerHTML = targetMarkup(t, showCopy)
     for (const piece of view.pieces.values()) piece.remove()
     view.pieces.clear()
     render()
@@ -192,21 +195,41 @@ function shell(t: Translate, locale: Locale, chrome: Chrome): string {
 
         <dl class="status" id="status"></dl>
 
+        <figure class="target" id="target">${targetMarkup(t, chrome.copy)}</figure>
+
         <div class="controls">
           <button type="button" class="button" id="new-game">${t('control.newGame')}</button>
-          <label class="field checkbox">
+          <label class="field checkbox"
+                 title="${t('control.tournamentHint', { limit: TOURNAMENT_MOVE_LIMIT })}">
             <input type="checkbox" id="tournament"${checked(chrome.tournament)} />
             <span>${t('control.tournament')}</span>
           </label>
-          <p class="hint">${t('control.tournamentHint', { limit: TOURNAMENT_MOVE_LIMIT })}</p>
-          <label class="field checkbox">
+          <label class="field checkbox" title="${t('control.copyHint')}">
             <input type="checkbox" id="copy"${checked(chrome.copy)} />
             <span>${t('control.copy')}</span>
           </label>
-          <p class="hint">${t('control.copyHint')}</p>
         </div>
       </aside>
     </main>`
+}
+
+/**
+ * The board as it looks when both sides are home, small, in the panel. Which
+ * device stands in which row, in what order, and which way a side is going are
+ * all things a player has to hold in their head otherwise, and the sheet answers
+ * them with a figure rather than with a sentence.
+ */
+function targetMarkup(t: Translate, showCopy: boolean): string {
+  return (
+    `<figcaption>${t('status.target')}</figcaption>` +
+    `<svg class="target-board" viewBox="0 0 ${BOARD_SIZE} ${BOARD_SIZE}" role="img" ` +
+    `aria-label="${t('a11y.target')}">` +
+    // No maker's mark: at this size it is a smudge in the margin.
+    `${diagramMarkup(targetPosition(), {
+      showMakerMark: false,
+      ...(showCopy ? { marks: OWNER_MARKS } : {}),
+    })}</svg>`
+  )
 }
 
 function collect(root: HTMLElement): View {
@@ -220,6 +243,7 @@ function collect(root: HTMLElement): View {
     printing: need<SVGGElement>('#printing'),
     pieces: new Map(),
     hints: need<SVGGElement>('#hints'),
+    target: need('#target'),
     turn: need('#turn'),
     notice: need('#notice'),
     noticeText: need('#notice-text'),

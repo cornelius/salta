@@ -1,5 +1,7 @@
 import { col, isPlayable, row, SIZE } from '../core/board'
+import type { Position } from '../core/setup'
 import type { Square } from '../core/types'
+import { isReplacement, pieceMarkup, replacementMarkup } from './piece'
 import type { OwnerMarks } from './theme'
 import { type Palette, SET_PALETTE } from './theme'
 
@@ -84,4 +86,28 @@ export function boardMarkup(options: BoardOptions = {}): string {
       ? []
       : [label(FRAME / 2, false), label(BOARD_SIZE - FRAME / 2, true)]),
   ].join('')
+}
+
+/**
+ * A board with a position standing on it, drawn once and done with: the figures
+ * in the rules facsimile, the target the panel shows, the preview page. The game
+ * itself does not use this -- there a piece is an element that keeps its identity
+ * across moves, so that a move can be a slide rather than a redraw.
+ *
+ * Given the owner's marks, the pieces this copy has lost are drawn as the cards
+ * that stand in for them, so a diagram of the copy is a diagram of the copy
+ * throughout.
+ */
+export function diagramMarkup(position: Position, options: BoardOptions = {}): string {
+  const palette = options.palette ?? SET_PALETTE
+  const marks = options.marks
+  const pieces = [...position].map(([sq, piece]) => {
+    const { x, y } = squareOrigin(sq)
+    const face =
+      marks !== undefined && isReplacement(piece)
+        ? replacementMarkup(piece, marks, palette)
+        : pieceMarkup(piece, palette)
+    return `<g transform="translate(${x} ${y})">${face}</g>`
+  })
+  return boardMarkup(options) + pieces.join('')
 }
