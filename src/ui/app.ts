@@ -198,7 +198,6 @@ function shell(t: Translate, locale: Locale, chrome: Chrome): string {
         <figure class="target" id="target">${targetMarkup(t, chrome.copy)}</figure>
 
         <div class="controls">
-          <button type="button" class="button" id="new-game">${t('control.newGame')}</button>
           <label class="field checkbox"
                  title="${t('control.tournamentHint', { limit: TOURNAMENT_MOVE_LIMIT })}">
             <input type="checkbox" id="tournament"${checked(chrome.tournament)} />
@@ -208,6 +207,7 @@ function shell(t: Translate, locale: Locale, chrome: Chrome): string {
             <input type="checkbox" id="copy"${checked(chrome.copy)} />
             <span>${t('control.copy')}</span>
           </label>
+          <button type="button" class="button" id="new-game">${t('control.newGame')}</button>
         </div>
       </aside>
     </main>`
