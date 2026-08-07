@@ -16,7 +16,7 @@ about the set is settled by looking at them.
 | `photos/rules-back-flat.jpg` | Back, sheet laid flat | The border ornament, the imprint |
 | `photos/board.jpg` | The folding board | Square count, square colours, the frame |
 | `photos/box-lid.jpg` | The box lid | Provenance |
-| `photos/pieces-all.jpg` | All thirty pieces | Confirming the set is complete |
+| `photos/pieces-all.jpg` | All thirty pieces | Which faces survive, and the two card replacements |
 | `photos/pieces-detail-a.jpg` | Several pieces, close | Device layouts per rank |
 | `photos/pieces-detail-b.jpg` | Several pieces, close | Device layouts per rank |
 | `photos/pieces-macro-sun-moon.jpg` | A five-sun and a four-moon piece | Sun and moon shapes, the green pigment |
@@ -24,10 +24,25 @@ about the set is settled by looking at them.
 
 EXIF metadata has been stripped from all of them.
 
-The board photograph shows a rectangle inked onto the board by hand, enclosing
-the middle 8x8 squares. That is a later addition by an owner -- it marks out a
-chess or draughts board inside the 10x10 one -- and is deliberately not
-reproduced in the rendering.
+## What a later owner did to this copy
+
+Two of the photographs show things that are not the 1899 edition but the copy's
+own later life, and the rendering treats both the same way: they are left off the
+reconstruction and drawn by the mode that shows the set as it now is (ADR 004
+[the copy in hand]).
+
+`photos/board.jpg` shows a rectangle ruled onto the board by hand in two crayons,
+red and blue run side by side, enclosing the middle 8x8 squares -- a chess or
+draughts board marked out inside the 10x10 one.
+
+`photos/pieces-all.jpg` shows thirty pieces, of which twenty-eight carry a printed
+face and two are discs cut from card by hand, with their devices drawn on in a
+crayon close to the colour the piece should have been. The drawing is on the
+discs; it is not legible in this photograph, which is shot from too far off and
+in flat light, so the count on each one cannot be read off it. Counting the
+printed faces against the thirty a set needs leaves green's one-sun and green's
+three-sun. That is what the photograph gives, and the owner confirms it against
+the discs themselves.
 
 ## What was derived, and how to redo it
 

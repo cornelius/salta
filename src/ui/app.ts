@@ -22,12 +22,28 @@ import {
   translator,
 } from '../i18n'
 import { BOARD_SIZE, boardMarkup, CELL, squareOrigin } from '../render/board'
-import { pieceMarkup } from '../render/piece'
+import { isReplacement, pieceMarkup, replacementMarkup } from '../render/piece'
+import { OWNER_MARKS } from '../render/theme'
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
+const COPY_STORAGE_KEY = 'salta.copy'
+
+/**
+ * Whether to draw the set as the copy it was reconstructed from now is, marks,
+ * replacements and all. Remembered, like the language, because it is a standing
+ * preference rather than something to set again every visit.
+ */
+function preferredCopy(): boolean {
+  return globalThis.localStorage?.getItem(COPY_STORAGE_KEY) === 'yes'
+}
+
+function rememberCopy(showCopy: boolean): void {
+  globalThis.localStorage?.setItem(COPY_STORAGE_KEY, showCopy ? 'yes' : 'no')
+}
 
 interface View {
   readonly board: SVGSVGElement
+  readonly printing: SVGGElement
   readonly pieces: Map<string, SVGGElement>
   readonly hints: SVGGElement
   readonly turn: HTMLElement
@@ -37,6 +53,7 @@ interface View {
   readonly saltaWaive: HTMLButtonElement
   readonly status: HTMLElement
   readonly tournament: HTMLInputElement
+  readonly copy: HTMLInputElement
 }
 
 export function mount(root: HTMLElement): void {
@@ -44,8 +61,11 @@ export function mount(root: HTMLElement): void {
   let t = translator(locale)
   let state = newGame()
   let selected: Square | undefined
+  let showCopy = preferredCopy()
 
-  root.innerHTML = shell(t, locale)
+  const chrome = () => ({ tournament: state.tournament, copy: showCopy })
+
+  root.innerHTML = shell(t, locale, chrome())
   const view = collect(root)
 
   const setLocale = (next: Locale): void => {
@@ -53,9 +73,19 @@ export function mount(root: HTMLElement): void {
     t = translator(locale)
     rememberLocale(next)
     document.documentElement.lang = next
-    root.innerHTML = shell(t, locale)
+    root.innerHTML = shell(t, locale, chrome())
     Object.assign(view, collect(root))
     wire()
+    render()
+  }
+
+  /** Both the board and two of the pieces are drawn differently, so both go. */
+  const setCopy = (next: boolean): void => {
+    showCopy = next
+    rememberCopy(next)
+    view.printing.innerHTML = boardMarkup(showCopy ? { marks: OWNER_MARKS } : {})
+    for (const piece of view.pieces.values()) piece.remove()
+    view.pieces.clear()
     render()
   }
 
@@ -97,6 +127,9 @@ export function mount(root: HTMLElement): void {
       render()
     })
     view.tournament.addEventListener('change', start)
+    view.copy.addEventListener('change', (event) => {
+      setCopy((event.target as HTMLInputElement).checked)
+    })
     root.querySelector('#new-game')?.addEventListener('click', start)
     root.querySelector('#locale')?.addEventListener('change', (event) => {
       setLocale((event.target as HTMLSelectElement).value as Locale)
@@ -104,7 +137,7 @@ export function mount(root: HTMLElement): void {
   }
 
   function render(): void {
-    drawPieces(view, state, t)
+    drawPieces(view, state, t, showCopy)
     drawHints(view, state, selected)
     drawStatus(view, state, t)
   }
@@ -113,10 +146,16 @@ export function mount(root: HTMLElement): void {
   render()
 }
 
-function shell(t: Translate, locale: Locale): string {
+interface Chrome {
+  readonly tournament: boolean
+  readonly copy: boolean
+}
+
+function shell(t: Translate, locale: Locale, chrome: Chrome): string {
   const options = LOCALES.map(
     (l) => `<option value="${l}"${l === locale ? ' selected' : ''}>${LOCALE_NAMES[l]}</option>`,
   ).join('')
+  const checked = (on: boolean) => (on ? ' checked' : '')
   return `
     <header class="masthead">
       <div class="masthead-titles">
@@ -135,7 +174,7 @@ function shell(t: Translate, locale: Locale): string {
     <main class="table">
       <svg class="board" id="board" viewBox="0 0 ${BOARD_SIZE} ${BOARD_SIZE}"
            role="img" aria-label="${t('a11y.board')}">
-        ${boardMarkup()}
+        <g id="printing">${boardMarkup(chrome.copy ? { marks: OWNER_MARKS } : {})}</g>
         <g id="hints"></g>
         <g id="pieces"></g>
       </svg>
@@ -156,10 +195,15 @@ function shell(t: Translate, locale: Locale): string {
         <div class="controls">
           <button type="button" class="button" id="new-game">${t('control.newGame')}</button>
           <label class="field checkbox">
-            <input type="checkbox" id="tournament" />
+            <input type="checkbox" id="tournament"${checked(chrome.tournament)} />
             <span>${t('control.tournament')}</span>
           </label>
           <p class="hint">${t('control.tournamentHint', { limit: TOURNAMENT_MOVE_LIMIT })}</p>
+          <label class="field checkbox">
+            <input type="checkbox" id="copy"${checked(chrome.copy)} />
+            <span>${t('control.copy')}</span>
+          </label>
+          <p class="hint">${t('control.copyHint')}</p>
         </div>
       </aside>
     </main>`
@@ -173,6 +217,7 @@ function collect(root: HTMLElement): View {
   }
   return {
     board: need<SVGSVGElement>('#board'),
+    printing: need<SVGGElement>('#printing'),
     pieces: new Map(),
     hints: need<SVGGElement>('#hints'),
     turn: need('#turn'),
@@ -182,10 +227,11 @@ function collect(root: HTMLElement): View {
     saltaWaive: need<HTMLButtonElement>('#salta-waive'),
     status: need('#status'),
     tournament: need<HTMLInputElement>('#tournament'),
+    copy: need<HTMLInputElement>('#copy'),
   }
 }
 
-function drawPieces(view: View, state: GameState, t: Translate): void {
+function drawPieces(view: View, state: GameState, t: Translate, showCopy: boolean): void {
   const layer = view.board.querySelector('#pieces')
   if (layer === null) return
   const live = new Set<string>()
@@ -197,7 +243,10 @@ function drawPieces(view: View, state: GameState, t: Translate): void {
     if (element === undefined) {
       element = document.createElementNS(SVG_NS, 'g')
       element.setAttribute('class', 'piece')
-      element.innerHTML = pieceMarkup(piece)
+      element.innerHTML =
+        showCopy && isReplacement(piece)
+          ? replacementMarkup(piece, OWNER_MARKS)
+          : pieceMarkup(piece)
       // A transparent square over the piece keeps the click target the whole cell.
       const hit = document.createElementNS(SVG_NS, 'rect')
       hit.setAttribute('width', String(CELL))
@@ -235,20 +284,27 @@ function drawHints(view: View, state: GameState, selected: Square | undefined): 
   const shapes: string[] = []
   const moves = availableMoves(state)
 
+  // Every mark lies over a square and takes the clicks meant for it, so each one
+  // names the square it covers: a dot marking a destination has to be a way of
+  // reaching it, not a hole in the board.
   if (selected !== undefined) {
     const { x, y } = squareOrigin(selected)
-    shapes.push(`<rect class="hint-selected" x="${x}" y="${y}" width="${CELL}" height="${CELL}"/>`)
+    shapes.push(
+      `<rect class="hint-selected" data-square="${selected}" ` +
+        `x="${x}" y="${y}" width="${CELL}" height="${CELL}"/>`,
+    )
     for (const move of moves.filter((m: Move) => m.from === selected)) {
       const to = squareOrigin(move.to)
       shapes.push(
-        `<circle class="hint-move${isJump(move) ? ' hint-jump' : ''}" ` +
+        `<circle class="hint-move${isJump(move) ? ' hint-jump' : ''}" data-square="${move.to}" ` +
           `cx="${to.x + CELL / 2}" cy="${to.y + CELL / 2}" r="16"/>`,
       )
       // Mark the piece being jumped, so the reason for the long move is visible.
       if (move.over !== undefined) {
         const over = squareOrigin(move.over)
         shapes.push(
-          `<rect class="hint-over" x="${over.x}" y="${over.y}" width="${CELL}" height="${CELL}"/>`,
+          `<rect class="hint-over" data-square="${move.over}" ` +
+            `x="${over.x}" y="${over.y}" width="${CELL}" height="${CELL}"/>`,
         )
       }
     }
@@ -292,6 +348,9 @@ function drawStatus(view: View, state: GameState, t: Translate): void {
   // Values sit in fixed-width slots so the panel never reflows as counts grow.
   const cell = (player: 'green' | 'red', value: number) =>
     `<dd class="count" data-player="${player}"><span class="swatch"></span>${value}</dd>`
+  // What each side still owes is what the tournament rule scores at its limit.
+  // Outside a tournament nothing counts it, and a number that large next to the
+  // moves played reads as a budget rather than as a distance.
   const limit = state.tournament
     ? ` <small>${t('status.limit', { limit: TOURNAMENT_MOVE_LIMIT })}</small>`
     : ''
@@ -299,8 +358,12 @@ function drawStatus(view: View, state: GameState, t: Translate): void {
     `<dt>${t('status.moves')}${limit}</dt>`,
     cell('green', state.moveCount.green),
     cell('red', state.moveCount.red),
-    `<dt>${t('status.remaining')}</dt>`,
-    cell('green', movesRemaining(state.position, 'green')),
-    cell('red', movesRemaining(state.position, 'red')),
+    ...(state.tournament
+      ? [
+          `<dt>${t('status.remaining')}</dt>`,
+          cell('green', movesRemaining(state.position, 'green')),
+          cell('red', movesRemaining(state.position, 'red')),
+        ]
+      : []),
   ].join('')
 }

@@ -58,6 +58,13 @@ The colours themselves were measured off the photographs rather than picked;
 `dev/tools/measure-pigment.py` derives them and documents where each number is a
 reading and where it is a judgement.
 
+`theme.ts` also carries `OwnerMarks`, which is not a palette and not part of the
+edition: the crayon rectangle a later owner ruled onto this copy, and the card the
+two replacement pieces were cut from. `boardMarkup` draws the rectangle when
+handed the marks and `replacementMarkup` draws a disc, so the two colours reach
+the drawing code without either palette knowing about them (ADR 004 [the copy in
+hand]).
+
 ## The interface layer
 
 `ui/app.ts` mounts everything into one element and keeps three things: the game
@@ -79,3 +86,9 @@ them.
 `index.html` is the game. `rules/index.html` is the facsimile of the 1899 rules
 sheet, which draws its two figures from `src/render` in the print palette. Both
 are Vite inputs; see `vite.config.ts`.
+
+The rules page also carries the two readable versions, and `rules/reader.ts`
+switches between the three. They are not written into the page: a plugin in
+`vite.config.ts` turns `docs/rules.de.md` and `docs/rules.en.md` into HTML at
+build time, so the published text and the file in `docs/` cannot differ
+(ADR 005 [readable-rules-on-the-page]).

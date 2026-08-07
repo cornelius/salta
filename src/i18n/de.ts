@@ -29,6 +29,9 @@ export const de: Record<MessageKey, string> = {
   'control.newGame': 'Neues Spiel',
   'control.tournament': 'Turnier-Regel',
   'control.tournamentHint': 'Nach je {limit} Zügen abbrechen und die Differenz werten.',
+  'control.copy': 'Großmutti-Exemplar',
+  'control.copyHint':
+    'Brett und Steine so, wie dieses Spiel heute ist: mit dem eingezeichneten Schachfeld und zwei durch Pappscheiben ersetzten Steinen.',
   'control.language': 'Sprache',
   'control.rules': 'Spielregeln',
 

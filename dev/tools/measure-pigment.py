@@ -55,8 +55,25 @@ class Sample:
     """Circle to average over, as centre x, centre y, radius in pixels."""
     circle: tuple[int, int, int] | None = None
     box: Box | None = None
+    """
+    Keep only an annulus of the circle, as inner and outer share of the radius.
+    The cut edge of a disc is a different tone from its face.
+    """
+    ring: tuple[float, float] | None = None
+    """
+    Follow a drawn line along the box instead of taking the box whole: "h" walks
+    it column by column, "v" row by row. See `pixels_of` for why.
+    """
+    ridge: str | None = None
+    """Which line a ridge follows: the warmer of the two, or the cooler."""
+    warm: bool = True
     """Keep only the most saturated (1 - quantile) share. 0.0 keeps everything."""
     saturation_quantile: float = 0.90
+    """
+    Paper patch to balance this one sample against, overriding the photo's. For a
+    photo lit unevenly enough that a patch across the frame is the wrong white.
+    """
+    reference: Box | None = None
 
 
 @dataclass(frozen=True)
@@ -101,6 +118,73 @@ PHOTOS: tuple[Photo, ...] = (
         samples=(
             Sample("board light square", box=(1350, 1030, 100, 110), saturation_quantile=0.0),
             Sample("board dark square", box=(1500, 1030, 110, 110), saturation_quantile=0.0),
+            # The rectangle a later owner ruled onto the board runs as two
+            # crayon lines side by side, red outside and blue inside. Both are
+            # translucent: each reads light where it crosses a light square and
+            # dark where it crosses a dark one, and a run of line crosses both.
+            # The values below are therefore a line's own colour only in the
+            # sense of an average over what it was drawn across.
+            Sample(
+                "owner's line, outer (top edge)",
+                box=(1600, 462, 1100, 16),
+                ridge="h",
+                saturation_quantile=0.5,
+            ),
+            Sample(
+                "owner's line, inner (top edge)",
+                box=(1600, 476, 1100, 16),
+                ridge="h",
+                warm=False,
+                saturation_quantile=0.5,
+            ),
+            Sample(
+                "owner's line, outer (left edge)",
+                box=(1470, 900, 16, 450),
+                ridge="v",
+                saturation_quantile=0.5,
+            ),
+            Sample(
+                "owner's line, inner (left edge)",
+                box=(1484, 900, 18, 450),
+                ridge="v",
+                warm=False,
+                saturation_quantile=0.5,
+            ),
+        ),
+    ),
+    Photo(
+        # The thirty pieces laid out on tissue paper. Two of them are blank discs
+        # cut from card by hand, standing in for pieces that were lost; which two
+        # they replace is settled by which faces are missing from the rest, not
+        # by anything on the discs. The tissue is lit unevenly across the frame,
+        # so each disc is balanced against the paper lying beside it.
+        filename="pieces-all.jpg",
+        reference=(2900, 1850, 300, 200),
+        samples=(
+            Sample(
+                "replacement disc, face",
+                circle=(2506, 1181, 86),
+                ring=(0.0, 0.8),
+                saturation_quantile=0.0,
+                reference=(2380, 1300, 120, 120),
+            ),
+            Sample(
+                "replacement disc, cut edge",
+                circle=(2506, 1181, 86),
+                ring=(0.88, 1.0),
+                saturation_quantile=0.0,
+                reference=(2380, 1300, 120, 120),
+            ),
+            # Lighter than the paper the balance is anchored to, so it clips and
+            # its reading is a floor rather than a colour. The pair were cut from
+            # two different cards; the renderer draws both in the first one's.
+            Sample(
+                "replacement disc, face (the other one, clips)",
+                circle=(1622, 1776, 74),
+                ring=(0.0, 0.8),
+                saturation_quantile=0.0,
+                reference=(1750, 1700, 140, 140),
+            ),
         ),
     ),
 )
@@ -118,25 +202,55 @@ def as_hex(srgb: np.ndarray) -> str:
     return "#" + "".join(f"{int(round(c * 255)):02x}" for c in np.clip(srgb, 0, 1))
 
 
-def balanced(path: Path, photo: Photo) -> np.ndarray:
+def linear(path: Path) -> np.ndarray:
+    return srgb_to_linear(np.asarray(Image.open(path).convert("RGB"), dtype=np.float64) / 255.0)
+
+
+def balanced(image: np.ndarray, photo: Photo, sample: Sample) -> np.ndarray:
     """The photo in linear light, lifted out of its own exposure and cast."""
-    a = srgb_to_linear(np.asarray(Image.open(path).convert("RGB"), dtype=np.float64) / 255.0)
-    if photo.reference is not None:
-        x, y, w, h = photo.reference
-        patch = np.median(a[y : y + h, x : x + w].reshape(-1, 3), axis=0)
-        return a * (srgb_to_linear(PAPER_TARGET) / patch)
+    reference = sample.reference if sample.reference is not None else photo.reference
+    if reference is not None:
+        x, y, w, h = reference
+        patch = np.median(image[y : y + h, x : x + w].reshape(-1, 3), axis=0)
+        return image * (srgb_to_linear(PAPER_TARGET) / patch)
     if photo.exposure is not None:
-        return a * photo.exposure
+        return image * photo.exposure
     raise ValueError(f"{photo.filename} gives neither a reference patch nor an exposure")
 
 
+def ridge_pixels(image: np.ndarray, sample: Sample) -> np.ndarray:
+    """
+    The pixels of one hand-ruled line. A line is a few pixels wide and wanders by
+    a few more along its length, because it was drawn against a straightedge held
+    by hand, so a fixed box either loses it or takes in the card beside it. This
+    walks the box across the line instead, keeping at each step the pixel where
+    the wanted crayon is strongest and its two neighbours. Which crayon is wanted
+    is decided by red against blue, the two being drawn side by side.
+    """
+    if sample.box is None:
+        raise ValueError(f"sample {sample.label} gives a ridge but no box to follow it in")
+    x, y, w, h = sample.box
+    box = image[y : y + h, x : x + w]
+    crossings = np.moveaxis(box, 1, 0) if sample.ridge == "h" else box
+    kept = []
+    for crossing in crossings:
+        score = crossing[:, 0] - crossing[:, 2] if sample.warm else crossing[:, 2] - crossing[:, 0]
+        peak = int(np.argmax(score))
+        kept.append(crossing[max(0, peak - 1) : peak + 2])
+    return np.concatenate(kept)
+
+
 def pixels_of(image: np.ndarray, sample: Sample) -> np.ndarray:
+    if sample.ridge is not None:
+        return ridge_pixels(image, sample)
     if sample.circle is not None:
         cx, cy, r = sample.circle
         yy, xx = np.mgrid[0 : image.shape[0], 0 : image.shape[1]]
-        # Pull the radius in, so the bare card of the bevelled rim stays out.
-        inside = (xx - cx) ** 2 + (yy - cy) ** 2 <= (r * 0.88) ** 2
-        return image[inside]
+        # Pull the radius in by default, so the bare card of the bevelled rim
+        # stays out; a ring says explicitly which part of the disc is wanted.
+        inner, outer = sample.ring if sample.ring is not None else (0.0, 0.88)
+        distance = (xx - cx) ** 2 + (yy - cy) ** 2
+        return image[(distance >= (r * inner) ** 2) & (distance <= (r * outer) ** 2)]
     if sample.box is not None:
         x, y, w, h = sample.box
         return image[y : y + h, x : x + w].reshape(-1, 3)
@@ -167,10 +281,10 @@ def main() -> None:
         if not path.exists():
             print(f"{photo.filename}: not found under {args.photos}")
             continue
-        image = balanced(path, photo)
+        image = linear(path)
         print(photo.filename)
         for sample in photo.samples:
-            print(f"    {sample.label:44} {measure(image, sample)}")
+            print(f"    {sample.label:48} {measure(balanced(image, photo, sample), sample)}")
         print()
 
 

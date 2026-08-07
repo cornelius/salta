@@ -18,6 +18,8 @@ that came in the box.
 
 **Play it: <https://cornelius.github.io/salta/>**
 **The rules as they were printed: <https://cornelius.github.io/salta/rules/>**
+The same page carries the transcription and the English translation; the switch at
+its top chooses, and `#de` and `#en` link straight to them.
 
 Two players share one screen and take turns. Click a piece, then click where it
 should go.
@@ -30,7 +32,7 @@ should go.
 | `src/render` | The board, the pieces and the three devices, drawn as SVG |
 | `src/ui` | The playing interface |
 | `src/i18n` | English and German |
-| `rules/` | The 1899 rules sheet, set as it was printed |
+| `rules/` | The 1899 rules sheet as printed, and the readable versions beside it |
 | `docs/` | The rules transcribed and translated, and where the game came from |
 | `assets/` | The photographs everything was derived from |
 | `dev/adr/` | Why the project looks the way it does |
@@ -59,6 +61,13 @@ checks the opening position row by row against the printed Anfangsstellung, the
 other checks that the printed Schlußstellung scores the ten points its caption
 claims. The figures on the rules page are drawn by the same code that draws the
 playable board, in one ink instead of two, so they cannot fall out of step.
+
+What the board shows by default is the edition as it was sold. This copy has been
+lived with since: a later owner ruled a chess board onto the middle sixty-four
+squares in red and blue crayon, and two lost pieces were replaced with discs cut
+from card, their devices drawn on in crayon. **Grandma's copy** in the panel
+draws the set that way instead. `dev/adr/004-the-copy-in-hand.md` says why that is
+a switch rather than the picture, and how the two replaced pieces were identified.
 
 The compulsory jump is reproduced as the sheet describes it rather than as a
 program would enforce it. A player may overlook a jump; it stands unless the

@@ -27,6 +27,9 @@ export const en = {
   'control.newGame': 'New game',
   'control.tournament': 'Tournament rule',
   'control.tournamentHint': 'End after {limit} moves each and score the difference.',
+  'control.copy': "Grandma's copy",
+  'control.copyHint':
+    'The board and pieces as this set is now: the chess frame ruled onto it, and two pieces replaced with card.',
   'control.language': 'Language',
   'control.rules': 'Rules',
 

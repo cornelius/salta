@@ -61,6 +61,29 @@ footer.away {
   color: #efeae1;
 }
 
+/* The switch between the sheet and the two readable texts. */
+.views {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.views button {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid rgb(239 234 225 / 45%);
+  border-radius: 2px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.views button[aria-pressed="true"] {
+  background: #efeae1;
+  color: #2b2721;
+  border-color: #efeae1;
+}
+
 /* --- the sheet --------------------------------------------------------- */
 
 /*
@@ -271,6 +294,84 @@ footer.away {
 /* Player B is seated opposite, and the sheet sets their caption to match. */
 .caption-right {
   transform: rotate(180deg);
+}
+
+/* --- the readable texts ------------------------------------------------- */
+
+/*
+ * The transcription and the translation, set for reading rather than for
+ * resemblance: a plain face, ranged left, and the two board figures as the
+ * tables of squares the Markdown gives. The paper and the frame stay, because
+ * those belong to the page rather than to the sheet.
+ */
+.reader {
+  font-family: Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.reader h1,
+.reader h2,
+.reader h3 {
+  margin: 1.6rem 0 0.6rem;
+  text-align: left;
+  letter-spacing: normal;
+  font-weight: 700;
+}
+
+.reader h1 {
+  margin-top: 0;
+  font-size: 1.9rem;
+}
+
+.reader h2 {
+  font-size: 1.4rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgb(32 34 43 / 25%);
+}
+
+.reader h3 {
+  font-size: 1.05rem;
+}
+
+.reader p,
+.reader li {
+  margin: 0 0 0.8rem;
+  text-align: left;
+  text-indent: 0;
+}
+
+.reader ol,
+.reader ul {
+  margin: 0 0 0.8rem;
+  padding-left: 1.5rem;
+}
+
+.reader code {
+  font-size: 0.88em;
+}
+
+/* Eleven columns of board do not fit a phone; the figure scrolls, the text does not. */
+.reader table {
+  display: block;
+  overflow-x: auto;
+  margin: 0 0 1.2rem;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.reader th,
+.reader td {
+  min-width: 1.9rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px solid rgb(32 34 43 / 22%);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.reader th {
+  font-weight: 400;
+  color: rgb(32 34 43 / 65%);
 }
 
 @media (max-width: 40rem) {

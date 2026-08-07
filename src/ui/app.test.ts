@@ -21,6 +21,8 @@ function text(selector: string): string {
 }
 
 beforeEach(() => {
+  // The display mode is remembered between visits; no test may inherit it.
+  globalThis.localStorage?.removeItem('salta.copy')
   document.body.innerHTML = '<div id="app"></div>'
   root = document.querySelector<HTMLElement>('#app') as HTMLElement
   mount(root)
@@ -41,6 +43,15 @@ describe('picking a piece up', () => {
     clickSquare(square(7, 4))
     expect(root.querySelectorAll('.hint-selected')).toHaveLength(1)
     expect(root.querySelectorAll('.hint-move').length).toBeGreaterThan(0)
+  })
+
+  it('plays the move when the destination dot itself is clicked', () => {
+    clickSquare(square(7, 4))
+    const dot = root.querySelector('.hint-move')
+    if (dot === null) throw new Error('no destination offered')
+    dot.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(root.querySelectorAll('.hint-selected')).toHaveLength(0)
+    expect(text('#turn')).toContain('Red')
   })
 
   it('ignores a piece belonging to the other side', () => {
@@ -88,6 +99,52 @@ describe('overlooking a jump', () => {
     root.querySelector<HTMLButtonElement>('#salta-waive')?.click()
     expect(text('#turn')).toContain('Red')
     expect(root.querySelector('#notice')?.getAttribute('data-open')).toBe('no')
+  })
+})
+
+describe('the counts', () => {
+  it('leaves out what each side still owes until it counts for something', () => {
+    expect(text('#status')).not.toContain('Moves still to go')
+    const tournament = root.querySelector<HTMLInputElement>('#tournament')
+    if (tournament === null) throw new Error('no tournament control')
+    tournament.checked = true
+    tournament.dispatchEvent(new Event('change', { bubbles: true }))
+    expect(text('#status')).toContain('Moves still to go')
+  })
+})
+
+describe("grandma's copy", () => {
+  function toggleCopy(): void {
+    const box = root.querySelector<HTMLInputElement>('#copy')
+    if (box === null) throw new Error('no control for the copy in hand')
+    box.checked = true
+    box.dispatchEvent(new Event('change', { bubbles: true }))
+  }
+
+  it('leaves the owner marks off until asked for', () => {
+    expect(root.querySelectorAll('.owner-marks')).toHaveLength(0)
+  })
+
+  it('rules the owner rectangle onto the board', () => {
+    toggleCopy()
+    expect(root.querySelectorAll('.owner-marks rect')).toHaveLength(2)
+  })
+
+  it('draws the two lost pieces on card, and leaves the rest printed', () => {
+    toggleCopy()
+    const isCard = (id: string) => root.querySelector(`[data-piece="${id}"] .cut-card`) !== null
+    expect(isCard('green-sun-1')).toBe(true)
+    expect(isCard('green-sun-3')).toBe(true)
+    expect(isCard('green-sun-2')).toBe(false)
+    expect(root.querySelectorAll('[data-piece]')).toHaveLength(30)
+  })
+
+  it('keeps a replacement readable as the piece it stands in for', () => {
+    toggleCopy()
+    const replacement = root.querySelector('[data-piece="green-sun-3"]')
+    expect(replacement?.getAttribute('aria-label')).toContain('sun 3')
+    // Three devices drawn on, as on the piece it replaces: rim, edge, and three.
+    expect(replacement?.querySelectorAll('path')).toHaveLength(5)
   })
 })
 

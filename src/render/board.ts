@@ -1,5 +1,6 @@
 import { col, isPlayable, row, SIZE } from '../core/board'
 import type { Square } from '../core/types'
+import type { OwnerMarks } from './theme'
 import { type Palette, SET_PALETTE } from './theme'
 
 /** One square is 100 units, so a square index maps to coordinates by multiplying. */
@@ -20,6 +21,34 @@ export interface BoardOptions {
   readonly palette?: Palette
   /** The maker's name in the side margins. The rules diagrams print without it. */
   readonly showMakerMark?: boolean
+  /** Given, the rectangle a later owner ruled onto this copy is drawn over the squares. */
+  readonly marks?: OwnerMarks
+}
+
+/**
+ * The owner's rectangle encloses the middle eight-by-eight squares -- a chess or
+ * draughts board inside the ten-by-ten one -- so it stands one square in from
+ * the playing field on every side. Its two lines abut, the red falling outside
+ * the square boundary and the blue inside it, and each is between a sixteenth
+ * and a fourteenth of a square wide where the photograph is measured across it.
+ */
+const RULED_INSET = 1
+const RULED_WIDTH = 6
+
+function ruledFrameMarkup(marks: OwnerMarks): string {
+  const line = (colour: string, offset: number) => {
+    const start = FRAME + RULED_INSET * CELL + offset
+    const span = FIELD - 2 * RULED_INSET * CELL - 2 * offset
+    return (
+      `<rect x="${start}" y="${start}" width="${span}" height="${span}" fill="none" ` +
+      `stroke="${colour}" stroke-width="${RULED_WIDTH}"/>`
+    )
+  }
+  // Over the squares, so the clicks that pick pieces up still reach them.
+  return (
+    `<g class="owner-marks" pointer-events="none">` +
+    `${line(marks.lineOuter, -RULED_WIDTH / 2)}${line(marks.lineInner, RULED_WIDTH / 2)}</g>`
+  )
 }
 
 /**
@@ -48,6 +77,7 @@ export function boardMarkup(options: BoardOptions = {}): string {
   return [
     `<rect width="${BOARD_SIZE}" height="${BOARD_SIZE}" fill="${palette.frame}"/>`,
     `<g class="board-squares">${squares.join('')}</g>`,
+    ...(options.marks === undefined ? [] : [ruledFrameMarkup(options.marks)]),
     `<rect x="${FRAME - RULE * 2}" y="${FRAME - RULE * 2}" width="${FIELD + RULE * 4}" ` +
       `height="${FIELD + RULE * 4}" fill="none" stroke="${palette.rule}" stroke-width="${RULE}"/>`,
     ...(options.showMakerMark === false

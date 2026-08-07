@@ -6,7 +6,8 @@
 import { initialPosition } from '../src/core/setup'
 import { DEVICES, PLAYERS, RANKS } from '../src/core/types'
 import { BOARD_SIZE, boardMarkup, squareOrigin } from '../src/render/board'
-import { PIECE_SIZE, pieceMarkup } from '../src/render/piece'
+import { isReplacement, PIECE_SIZE, pieceMarkup, replacementMarkup } from '../src/render/piece'
+import { OWNER_MARKS } from '../src/render/theme'
 
 const swatches: string[] = []
 for (const player of PLAYERS) {
@@ -20,10 +21,21 @@ for (const player of PLAYERS) {
   }
 }
 
-const pieces = [...initialPosition()].map(([sq, piece]) => {
-  const { x, y } = squareOrigin(sq)
-  return `<g transform="translate(${x} ${y})">${pieceMarkup(piece)}</g>`
-})
+const opening = (showCopy: boolean) =>
+  [...initialPosition()]
+    .map(([sq, piece]) => {
+      const { x, y } = squareOrigin(sq)
+      const face =
+        showCopy && isReplacement(piece)
+          ? replacementMarkup(piece, OWNER_MARKS)
+          : pieceMarkup(piece)
+      return `<g transform="translate(${x} ${y})">${face}</g>`
+    })
+    .join('')
+
+const board = (showCopy: boolean) =>
+  `<svg viewBox="0 0 ${BOARD_SIZE} ${BOARD_SIZE}" width="660" height="660">` +
+  `${boardMarkup(showCopy ? { marks: OWNER_MARKS } : {})}${opening(showCopy)}</svg>`
 
 const target = document.querySelector('#preview')
 if (target !== null) {
@@ -31,7 +43,7 @@ if (target !== null) {
     <h2>Pieces</h2>
     ${swatches.join('')}
     <h2>Opening position</h2>
-    <svg viewBox="0 0 ${BOARD_SIZE} ${BOARD_SIZE}" width="660" height="660">
-      ${boardMarkup()}${pieces.join('')}
-    </svg>`
+    ${board(false)}
+    <h2>The copy in hand</h2>
+    ${board(true)}`
 }

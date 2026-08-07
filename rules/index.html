@@ -13,14 +13,16 @@
   <body>
     <nav class="away">
       <a href="../">&larr; Salta</a>
-      <span
-        >Lesbare Fassungen:
-        <a href="https://github.com/cornelius/salta/blob/main/docs/rules.de.md">Deutsch</a>,
-        <a href="https://github.com/cornelius/salta/blob/main/docs/rules.en.md">English</a></span
-      >
+      <span class="views">
+        Fassung:
+        <button type="button" data-view="facsimile" aria-pressed="true">Faksimile</button>
+        <button type="button" data-view="de" aria-pressed="false">Deutsch</button>
+        <button type="button" data-view="en" aria-pressed="false">English</button>
+      </span>
     </nav>
 
-    <article class="sheet">
+    <div id="facsimile">
+      <article class="sheet">
       <header class="sheet-head">
         <h1>Salta-Spiel.</h1>
         <p class="standfirst">Ein Brettspiel für 2 Personen.</p>
@@ -87,10 +89,10 @@
         eingeschlossen, so muß also Ersterer seine Truppen den Endzielen zuführen. Bei Einschließung
         muß der Einschließende dem Eingeschlossenen immer noch ein Feld zum Ziehen offen lassen.
       </p>
-    </article>
+      </article>
 
-    <article class="sheet">
-      <h2>Züge.</h2>
+      <article class="sheet">
+        <h2>Züge.</h2>
 
       <ol class="moves">
         <li>
@@ -172,16 +174,21 @@
       </p>
 
       <p class="imprint">Ernst Gentzensohn, Stettin.</p>
-    </article>
+      </article>
+    </div>
+
+    <article class="sheet reader" id="reader" hidden></article>
 
     <footer class="away">
       <p>
         Nachbildung des beiliegenden Regelblatts. Die Diagramme sind aus derselben Zeichnung erzeugt
         wie das Spielbrett, die Fotografien der Vorlage liegen unter
-        <code>assets/photos/</code> im Repository.
+        <code>assets/photos/</code> im Repository. Die lesbaren Fassungen sind die Transkription und
+        die Übersetzung aus <code>docs/</code>, hier gesetzt statt verlinkt.
       </p>
     </footer>
 
     <script type="module" src="./facsimile.ts"></script>
+    <script type="module" src="./reader.ts"></script>
   </body>
 </html>

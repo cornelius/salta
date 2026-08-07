@@ -30,6 +30,8 @@ Two observations that are inference rather than record, and are flagged as such:
 
 **The sheet is probably later than 1899.** It advertises Salta-Solo as *das neue Problem-Spiel* at 50 Pfg. Schubert's book covering Salta-Solo is from 1902, so the sheet is more likely from around 1901 to 1903 than from the first year.
 
+**It was played with, and mended.** Someone ruled a rectangle onto the board in red and blue crayon, enclosing the middle sixty-four squares, which turns a Salta board into a chess or draughts one. Two pieces were lost and replaced with discs cut from card by hand, their suns drawn on in crayon. Neither is the edition, and the game draws both only when asked to; `assets/README.md` says which two pieces the discs stand in for and how that was worked out.
+
 **This edition's colours are its own.** English Wikipedia describes Salta pieces as white with green markings against black with red. The pieces here are solid red and solid green discs with the devices left as bare card. The colours measured for this project (see `dev/tools/measure-pigment.py`) are therefore this edition's, not the game's in general.
 
 ## Sources

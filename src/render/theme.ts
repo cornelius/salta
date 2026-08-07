@@ -58,6 +58,37 @@ export const SET_PALETTE: Palette = {
   deviceHole: (player) => PIGMENT[player],
 }
 
+/**
+ * What a later owner left on this copy, and the only thing here that is not part
+ * of the edition: a rectangle ruled onto the board in two crayons to make a
+ * chess board of the middle sixty-four squares, and two pieces replaced by discs
+ * cut from card. The reconstruction leaves both off; the mode that shows the set
+ * as it now is draws them.
+ *
+ * The crayon lines are translucent, so each reads light where it crosses a light
+ * square and dark where it crosses a dark one. There is no one colour to
+ * measure: the two values below are averages over runs of line that cross both
+ * tints, and they sit between the readings the tool prints for the top edge and
+ * for the left, which differ because the board is a folded sheet lying unevenly.
+ * The card is measured from the disc that does not clip; its fellow was cut from
+ * a lighter card and both are drawn in this one.
+ */
+export interface OwnerMarks {
+  /** The two ruled lines, run side by side: red outside, blue within it. */
+  readonly lineOuter: string
+  readonly lineInner: string
+  /** Face and cut edge of a replacement disc. */
+  readonly card: string
+  readonly cardEdge: string
+}
+
+export const OWNER_MARKS: OwnerMarks = {
+  lineOuter: '#c9777f',
+  lineInner: '#1f415e',
+  card: '#f1e6cb',
+  cardEdge: '#e4d4bf',
+}
+
 export const PRINT_PALETTE: Palette = {
   boardLight: PRINT.paper,
   boardDark: PRINT.ink,
