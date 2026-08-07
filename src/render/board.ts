@@ -21,7 +21,7 @@ export function squareOrigin(sq: Square): { readonly x: number; readonly y: numb
 
 export interface BoardOptions {
   readonly palette?: Palette
-  /** The maker's name in the side margins. The rules diagrams print without it. */
+  /** The maker's name in the margins. The rules diagrams print without it. */
   readonly showMakerMark?: boolean
   /** Given, the rectangle a later owner ruled onto this copy is drawn over the squares. */
   readonly marks?: OwnerMarks
@@ -55,8 +55,9 @@ function ruledFrameMarkup(marks: OwnerMarks): string {
 
 /**
  * The board as printed: a hundred squares in two tints inside a dark frame, with
- * the maker's "SALTA!" set into the left and right margins as on the original.
- * Static -- nothing here depends on the position being played.
+ * the maker's "SALTA!" set into the margins the two players face, one the right
+ * way up from each seat, as on the original. Static -- nothing here depends on
+ * the position being played.
  */
 export function boardMarkup(options: BoardOptions = {}): string {
   const palette = options.palette ?? SET_PALETTE
@@ -70,11 +71,12 @@ export function boardMarkup(options: BoardOptions = {}): string {
     )
   }
 
-  const midY = FRAME + FIELD / 2
-  const label = (x: number, flip: boolean) =>
-    `<text x="${x}" y="${midY}" fill="${palette.rule}" font-size="20" letter-spacing="7" ` +
+  const midX = FRAME + FIELD / 2
+  // The far player reads their own copy of it, so that one stands on its head.
+  const label = (y: number, flip: boolean) =>
+    `<text x="${midX}" y="${y}" fill="${palette.rule}" font-size="20" letter-spacing="7" ` +
     `text-anchor="middle" dominant-baseline="central" font-family="Georgia, serif" ` +
-    `transform="rotate(${flip ? 90 : -90} ${x} ${midY})">SALTA!</text>`
+    `transform="rotate(${flip ? 180 : 0} ${midX} ${y})">SALTA!</text>`
 
   return [
     `<rect width="${BOARD_SIZE}" height="${BOARD_SIZE}" fill="${palette.frame}"/>`,
@@ -84,7 +86,7 @@ export function boardMarkup(options: BoardOptions = {}): string {
       `height="${FIELD + RULE * 4}" fill="none" stroke="${palette.rule}" stroke-width="${RULE}"/>`,
     ...(options.showMakerMark === false
       ? []
-      : [label(FRAME / 2, false), label(BOARD_SIZE - FRAME / 2, true)]),
+      : [label(FRAME / 2, true), label(BOARD_SIZE - FRAME / 2, false)]),
   ].join('')
 }
 
