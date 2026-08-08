@@ -18,6 +18,10 @@ Several books were written about how to play it:
 
 Schubert was the Hamburg mathematician, the one after whom Schubert calculus is named, who also wrote a good deal of popular and recreational mathematics.
 
+His 1899 book is the one the rules sheet's footnote points to, and it lives in this repository as [`schubert-salta-1899.pdf`](schubert-salta-1899.pdf): the [Internet Archive's scan](https://archive.org/details/schubertsalta) of all 42 pages, in the variant that carries an OCR text layer. That raw layer is the only text form of the book there is; no checked transcription exists. The book is in the public domain, Schubert having died in 1911.
+
+It also settles a point the sheet leaves open. The sheet says a missed compulsory jump "must" be called out, but not what happens when nobody calls. Schubert does, on page 9: "Wenn ein Spieler, der springen musste, dies übersehen und statt des Sprungs einen Zug gethan hat, und wenn dann sein Gegner ihm kein „Salta!" zugerufen, sondern selbst weitergespielt hat, so darf an der nunmehr vorhandenen Stellung nichts mehr geändert werden." The overlooked move stands the moment the opponent plays on, which is the reading the game implements. A footnote on the same page adds that this call is where the game got its name.
+
 Then it stopped. Interest fell away within a few years of the peak, and original sets became scarce.
 
 ## The set this project was built from
@@ -36,6 +40,7 @@ Two observations that are inference rather than record, and are flagged as such:
 
 ## Sources
 
+- [Hermann Schubert, *Salta, das neue Brettspiel* (1899), scanned](https://archive.org/details/schubertsalta), Internet Archive
 - [Salta (Spiel)](https://de.wikipedia.org/wiki/Salta_(Spiel)), German Wikipedia
 - [Salta (game)](https://en.wikipedia.org/wiki/Salta_(game)), English Wikipedia
 - [Salta](https://www.brettspielmuseum.de/post/salta), Brettspielmuseum
