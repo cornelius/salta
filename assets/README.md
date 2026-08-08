@@ -9,11 +9,8 @@ about the set is settled by looking at them.
 
 | File | Shows | Used for |
 |---|---|---|
-| `photos/rules-front.jpg` | Front of the rules sheet | The transcription, both board diagrams |
-| `photos/rules-front-alt.jpg` | Same, second exposure | Reading passages the first shot blurred |
-| `photos/rules-back.jpg` | Back of the rules sheet | The move rules, the tournament rule |
-| `photos/rules-front-flat.jpg` | Front, sheet laid flat | The sheet's proportions and paper tone |
-| `photos/rules-back-flat.jpg` | Back, sheet laid flat | The border ornament, the imprint |
+| `photos/rules-front-flat.jpg` | Front of the rules sheet, laid flat | The transcription, both board diagrams |
+| `photos/rules-back-flat.jpg` | Back of the sheet, laid flat | The move rules, the tournament rule, the imprint |
 | `photos/board.jpg` | The folding board | Square count, square colours, the frame |
 | `photos/box-lid.jpg` | The box lid | Provenance |
 | `photos/pieces-all.jpg` | All thirty pieces | Which faces survive, and the two card replacements |
@@ -23,6 +20,19 @@ about the set is settled by looking at them.
 | `photos/pieces-macro-star-sun.jpg` | A three-star and a one-sun piece | Star shape, the red pigment |
 
 EXIF metadata has been stripped from all of them.
+
+These are reduced from the originals, which the owner keeps and the repository does
+not: about 1600 pixels on the long edge, and 2400 for the two rules sheets, whose
+Fraktur has to stay readable because the transcription is checked against it. The
+board is cropped to the board. Two closer shots of the rules sheet and a second
+exposure of the front were dropped; the flat pair carries the same text. The
+originals are 29MB against 4MB, and none of this is served with the site -- the
+weight was only ever in a clone.
+
+What is lost with them is fineness rather than evidence: a colour still comes out
+of the tool below to within a unit or two of what the full-size images gave, which
+is why the values in `src/render/theme.ts` moved by that much when these replaced
+them.
 
 ## What a later owner did to this copy
 

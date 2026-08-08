@@ -22,7 +22,8 @@ const ROW_LABELS: readonly [string, number][] = [
 /**
  * Fig. 2 as printed: green home in good order, red home except for four star
  * pieces still scattered in midfield. Their positions are read off
- * assets/photos/rules-front.jpg, and cost red the ten points the caption names.
+ * assets/photos/rules-front-flat.jpg, and cost red the ten points the caption
+ * names.
  */
 const STRANDED: readonly (readonly [number, number, Piece])[] = [
   [4, 3, { player: 'red', device: 'star', rank: 3 }],

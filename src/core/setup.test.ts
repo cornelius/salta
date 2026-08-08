@@ -57,7 +57,7 @@ describe('the opening position', () => {
   })
 
   // The three rows on each side of the printed diagram, transcribed from
-  // assets/photos/rules-front.jpg. Red sits at the top, so its ranks run 5..1
+  // assets/photos/rules-front-flat.jpg. Red sits at the top, so its ranks run 5..1
   // across the page; green sits at the bottom and reads 1..5.
   it('matches the printed Anfangsstellung, red s side', () => {
     expect(diagramRow(position, 0)).toEqual([

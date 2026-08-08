@@ -8,6 +8,10 @@
 This is where the numbers in src/render/theme.ts come from. Run it against better
 photographs and the values it prints replace the ones in that file.
 
+The photographs in the repository are reduced from the originals, which the owner
+keeps: see assets/README.md. Every sample below is a pixel position in the reduced
+images, so a fresh set of photographs means new coordinates as well as new values.
+
 Method, and why each step is there:
 
 * The photographs are ordinary phone snaps, not colour-managed captures. Every
@@ -93,21 +97,21 @@ class Photo:
 PHOTOS: tuple[Photo, ...] = (
     Photo(
         filename="pieces-macro-star-sun.jpg",
-        reference=(1900, 1900, 400, 300),
+        reference=(792, 792, 167, 125),
         samples=(
-            Sample("red pigment", circle=(2985, 1090, 545)),
-            Sample("red pigment (worn disc, for comparison)", circle=(1245, 1075, 500)),
+            Sample("red pigment", circle=(1244, 454, 227)),
+            Sample("red pigment (worn disc, for comparison)", circle=(519, 448, 208)),
         ),
     ),
     Photo(
         filename="pieces-macro-sun-moon.jpg",
-        reference=(1900, 1600, 400, 400),
+        reference=(792, 667, 167, 167),
         samples=(
             # Reads pinker than the device colour in theme.ts, because the red
             # pigment around it bleeds into the card. The value in theme.ts takes
             # the lightness from here and drops the bleed.
-            Sample("bare card", box=(1440, 700, 70, 70), saturation_quantile=0.0),
-            Sample("green pigment", circle=(2880, 1000, 500)),
+            Sample("bare card", box=(600, 292, 29, 29), saturation_quantile=0.0),
+            Sample("green pigment", circle=(1200, 417, 208)),
         ),
     ),
     Photo(
@@ -116,8 +120,8 @@ PHOTOS: tuple[Photo, ...] = (
         filename="board.jpg",
         exposure=1.55,
         samples=(
-            Sample("board light square", box=(1350, 1030, 100, 110), saturation_quantile=0.0),
-            Sample("board dark square", box=(1500, 1030, 110, 110), saturation_quantile=0.0),
+            Sample("board light square", box=(112, 737, 93, 103), saturation_quantile=0.0),
+            Sample("board dark square", box=(252, 737, 103, 103), saturation_quantile=0.0),
             # The rectangle a later owner ruled onto the board runs as two
             # crayon lines side by side, red outside and blue inside. Both are
             # translucent: each reads light where it crosses a light square and
@@ -126,26 +130,26 @@ PHOTOS: tuple[Photo, ...] = (
             # sense of an average over what it was drawn across.
             Sample(
                 "owner's line, outer (top edge)",
-                box=(1600, 462, 1100, 16),
+                box=(345, 207, 1026, 15),
                 ridge="h",
                 saturation_quantile=0.5,
             ),
             Sample(
                 "owner's line, inner (top edge)",
-                box=(1600, 476, 1100, 16),
+                box=(345, 220, 1026, 15),
                 ridge="h",
                 warm=False,
                 saturation_quantile=0.5,
             ),
             Sample(
                 "owner's line, outer (left edge)",
-                box=(1470, 900, 16, 450),
+                box=(224, 616, 15, 420),
                 ridge="v",
                 saturation_quantile=0.5,
             ),
             Sample(
                 "owner's line, inner (left edge)",
-                box=(1484, 900, 18, 450),
+                box=(237, 616, 17, 420),
                 ridge="v",
                 warm=False,
                 saturation_quantile=0.5,
@@ -159,31 +163,31 @@ PHOTOS: tuple[Photo, ...] = (
         # by anything on the discs. The tissue is lit unevenly across the frame,
         # so each disc is balanced against the paper lying beside it.
         filename="pieces-all.jpg",
-        reference=(2900, 1850, 300, 200),
+        reference=(1208, 771, 125, 83),
         samples=(
             Sample(
                 "replacement disc, face",
-                circle=(2506, 1181, 86),
+                circle=(1044, 492, 36),
                 ring=(0.0, 0.8),
                 saturation_quantile=0.0,
-                reference=(2380, 1300, 120, 120),
+                reference=(992, 542, 50, 50),
             ),
             Sample(
                 "replacement disc, cut edge",
-                circle=(2506, 1181, 86),
+                circle=(1044, 492, 36),
                 ring=(0.88, 1.0),
                 saturation_quantile=0.0,
-                reference=(2380, 1300, 120, 120),
+                reference=(992, 542, 50, 50),
             ),
             # Lighter than the paper the balance is anchored to, so it clips and
             # its reading is a floor rather than a colour. The pair were cut from
             # two different cards; the renderer draws both in the first one's.
             Sample(
                 "replacement disc, face (the other one, clips)",
-                circle=(1622, 1776, 74),
+                circle=(676, 740, 31),
                 ring=(0.0, 0.8),
                 saturation_quantile=0.0,
-                reference=(1750, 1700, 140, 140),
+                reference=(729, 708, 58, 58),
             ),
         ),
     ),

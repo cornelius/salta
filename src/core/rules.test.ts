@@ -153,7 +153,7 @@ describe('counting the moves still owed', () => {
   /**
    * The printed Schlußstellung leaves red four star pieces short of home, and
    * the caption prices that at ten moves: "dies sind in Fig. 2 zehn Züge, also
-   * 10 verlorene Points für B". Transcribed from assets/photos/rules-front.jpg.
+   * 10 verlorene Points für B". Transcribed from assets/photos/rules-front-flat.jpg.
    */
   it('prices the printed end position at the ten points the rules claim', () => {
     const stranded: [number, number, Piece][] = [

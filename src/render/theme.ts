@@ -13,8 +13,8 @@ import type { Player } from '../core/types'
  * 125-year-old piece reads warm.
  */
 export const PIGMENT: Record<Player, string> = {
-  red: '#d81a25',
-  green: '#33734d',
+  red: '#d81b27',
+  green: '#36764e',
 }
 
 export const CARD = '#f4ead9'
@@ -83,10 +83,10 @@ export interface OwnerMarks {
 }
 
 export const OWNER_MARKS: OwnerMarks = {
-  lineOuter: '#c9777f',
-  lineInner: '#1f415e',
+  lineOuter: '#c67d84',
+  lineInner: '#213f56',
   card: '#f1e6cb',
-  cardEdge: '#e4d4bf',
+  cardEdge: '#e3d2bc',
 }
 
 export const PRINT_PALETTE: Palette = {
