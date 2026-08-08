@@ -26,6 +26,12 @@ export const en = {
   'outcome.draw': 'Drawn game.',
 
   'control.newGame': 'New game',
+  'control.opponent': 'Opponent',
+  'opponent.human': 'Two players',
+  'opponent.easy': 'Easy',
+  'opponent.medium': 'Medium',
+  'opponent.hard': 'Hard',
+  'control.youPlay': 'You play',
   'control.tournament': 'Tournament rule',
   'control.tournamentHint': 'End after {limit} moves each and score the difference.',
   'control.copy': "Grandma's copy",

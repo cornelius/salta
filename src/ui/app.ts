@@ -1,8 +1,10 @@
-import { squareName } from '../core/board'
+import { chooseMove, type Level, type Rng } from '../ai/opponent'
+import { SQUARES, squareName } from '../core/board'
 import { movesRemaining } from '../core/distance'
 import {
   availableMoves,
   callSalta,
+  canCallSalta,
   type GameState,
   jumpIsCompulsory,
   newGame,
@@ -11,8 +13,8 @@ import {
   waiveSalta,
 } from '../core/game'
 import { isJump } from '../core/rules'
-import { targetPosition } from '../core/setup'
-import { type Move, type Piece, pieceId, type Square } from '../core/types'
+import { type Position, targetPosition } from '../core/setup'
+import { type Move, type Piece, type Player, pieceId, type Square } from '../core/types'
 import {
   LOCALE_NAMES,
   LOCALES,
@@ -28,6 +30,31 @@ import { OWNER_MARKS } from '../render/theme'
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
 const COPY_STORAGE_KEY = 'salta.copy'
+const OPPONENT_STORAGE_KEY = 'salta.opponent'
+const SIDE_STORAGE_KEY = 'salta.side'
+
+/** Who sits across the board: another person at the same screen, or the computer. */
+type Opponent = 'human' | Level
+
+/**
+ * A beat between the board settling and the computer acting, so its move reads
+ * as a turn taken rather than a flicker of the position.
+ */
+const COMPUTER_DELAY = 600
+
+/**
+ * Whoever the human plays, they play up the board. Green already does; a human
+ * on red sees the board turned half around, which for the printing changes
+ * nothing -- squares, frame, and the twice-printed maker's mark are all
+ * symmetric under the turn -- so only the pieces need their squares remapped.
+ */
+function viewSquare(sq: Square, flip: boolean): Square {
+  return flip ? SQUARES - 1 - sq : sq
+}
+
+function flippedPosition(position: Position): Position {
+  return new Map([...position].map(([sq, piece]) => [viewSquare(sq, true), piece]))
+}
 
 /**
  * Whether to draw the set as the copy it was reconstructed from now is, marks,
@@ -40,6 +67,24 @@ function preferredCopy(): boolean {
 
 function rememberCopy(showCopy: boolean): void {
   globalThis.localStorage?.setItem(COPY_STORAGE_KEY, showCopy ? 'yes' : 'no')
+}
+
+/** Opponent and colour are standing preferences, remembered like the language. */
+function preferredOpponent(): Opponent {
+  const stored = globalThis.localStorage?.getItem(OPPONENT_STORAGE_KEY)
+  return stored === 'easy' || stored === 'medium' || stored === 'hard' ? stored : 'human'
+}
+
+function rememberOpponent(rival: Opponent): void {
+  globalThis.localStorage?.setItem(OPPONENT_STORAGE_KEY, rival)
+}
+
+function preferredSide(): Player {
+  return globalThis.localStorage?.getItem(SIDE_STORAGE_KEY) === 'red' ? 'red' : 'green'
+}
+
+function rememberSide(side: Player): void {
+  globalThis.localStorage?.setItem(SIDE_STORAGE_KEY, side)
 }
 
 interface View {
@@ -56,16 +101,31 @@ interface View {
   readonly status: HTMLElement
   readonly tournament: HTMLInputElement
   readonly copy: HTMLInputElement
+  readonly opponent: HTMLSelectElement
+  readonly side: HTMLSelectElement
+  readonly sideField: HTMLElement
 }
 
-export function mount(root: HTMLElement): void {
+export interface MountOptions {
+  /** Randomness for the computer's tie-breaking; injectable so tests replay. */
+  readonly rng?: Rng
+}
+
+export function mount(root: HTMLElement, options: MountOptions = {}): void {
+  const rng = options.rng ?? Math.random
   let locale = preferredLocale()
   let t = translator(locale)
   let state = newGame()
   let selected: Square | undefined
   let showCopy = preferredCopy()
+  let rival = preferredOpponent()
+  let side = preferredSide()
+  let thinking: ReturnType<typeof setTimeout> | undefined
 
-  const chrome = () => ({ tournament: state.tournament, copy: showCopy })
+  const solo = () => rival !== 'human'
+  const flip = () => solo() && side === 'red'
+
+  const chrome = () => ({ tournament: state.tournament, copy: showCopy, rival, side, flip: flip() })
 
   root.innerHTML = shell(t, locale, chrome())
   const view = collect(root)
@@ -86,7 +146,7 @@ export function mount(root: HTMLElement): void {
     showCopy = next
     rememberCopy(next)
     view.printing.innerHTML = boardMarkup(showCopy ? { marks: OWNER_MARKS } : {})
-    view.target.innerHTML = targetMarkup(t, showCopy)
+    view.target.innerHTML = targetMarkup(t, showCopy, flip())
     for (const piece of view.pieces.values()) piece.remove()
     view.pieces.clear()
     render()
@@ -95,11 +155,16 @@ export function mount(root: HTMLElement): void {
   const start = (): void => {
     state = newGame({ tournament: view.tournament.checked })
     selected = undefined
+    view.target.innerHTML = targetMarkup(t, showCopy, flip())
     render()
+    scheduleComputer()
   }
 
   function onSquare(sq: Square): void {
     if (state.outcome !== undefined) return
+    // While it is the computer's turn -- to move, or to call Salta -- the board
+    // is the computer's, and clicks on it pick nothing up.
+    if (solo() && state.toMove !== side) return
     const moves = availableMoves(state)
     if (selected !== undefined) {
       const move = moves.find((m) => m.from === selected && m.to === sq)
@@ -107,11 +172,36 @@ export function mount(root: HTMLElement): void {
         state = play(state, move.from, move.to)
         selected = undefined
         render()
+        scheduleComputer()
         return
       }
     }
     selected = moves.some((m) => m.from === sq) ? sq : undefined
     render()
+  }
+
+  function scheduleComputer(): void {
+    if (thinking !== undefined) {
+      clearTimeout(thinking)
+      thinking = undefined
+    }
+    if (!solo() || state.outcome !== undefined || state.toMove === side) return
+    thinking = setTimeout(computerActs, COMPUTER_DELAY)
+  }
+
+  function computerActs(): void {
+    thinking = undefined
+    if (rival === 'human' || state.outcome !== undefined || state.toMove === side) return
+    if (canCallSalta(state)) {
+      // Both halves of rule 3 are duties: the computer neither overlooks a jump
+      // nor lets the human's overlooked jump pass. It always calls (ADR 006).
+      state = callSalta(state)
+    } else {
+      const move = chooseMove(state, rival, rng)
+      state = play(state, move.from, move.to)
+    }
+    render()
+    scheduleComputer()
   }
 
   function wire(): void {
@@ -133,6 +223,18 @@ export function mount(root: HTMLElement): void {
     view.copy.addEventListener('change', (event) => {
       setCopy((event.target as HTMLInputElement).checked)
     })
+    view.opponent.addEventListener('change', (event) => {
+      const value = (event.target as HTMLSelectElement).value
+      rival = value === 'easy' || value === 'medium' || value === 'hard' ? value : 'human'
+      rememberOpponent(rival)
+      view.sideField.hidden = !solo()
+      start()
+    })
+    view.side.addEventListener('change', (event) => {
+      side = (event.target as HTMLSelectElement).value === 'red' ? 'red' : 'green'
+      rememberSide(side)
+      start()
+    })
     root.querySelector('#new-game')?.addEventListener('click', start)
     root.querySelector('#locale')?.addEventListener('change', (event) => {
       setLocale((event.target as HTMLSelectElement).value as Locale)
@@ -140,18 +242,22 @@ export function mount(root: HTMLElement): void {
   }
 
   function render(): void {
-    drawPieces(view, state, t, showCopy)
-    drawHints(view, state, selected)
-    drawStatus(view, state, t)
+    drawPieces(view, state, t, showCopy, flip())
+    drawHints(view, state, selected, flip())
+    drawStatus(view, state, t, solo())
   }
 
   wire()
   render()
+  scheduleComputer()
 }
 
 interface Chrome {
   readonly tournament: boolean
   readonly copy: boolean
+  readonly rival: Opponent
+  readonly side: Player
+  readonly flip: boolean
 }
 
 function shell(t: Translate, locale: Locale, chrome: Chrome): string {
@@ -195,9 +301,19 @@ function shell(t: Translate, locale: Locale, chrome: Chrome): string {
 
         <dl class="status" id="status"></dl>
 
-        <figure class="target" id="target">${targetMarkup(t, chrome.copy)}</figure>
+        <figure class="target" id="target">${targetMarkup(t, chrome.copy, chrome.flip)}</figure>
 
         <div class="controls">
+          <div class="field-row">
+            <label class="field">
+              <span class="field-label">${t('control.opponent')}</span>
+              <select id="opponent">${opponentOptions(t, chrome.rival)}</select>
+            </label>
+            <label class="field" id="side-field"${chrome.rival === 'human' ? ' hidden' : ''}>
+              <span class="field-label">${t('control.youPlay')}</span>
+              <select id="side">${sideOptions(t, chrome.side)}</select>
+            </label>
+          </div>
           <label class="field checkbox"
                  title="${t('control.tournamentHint', { limit: TOURNAMENT_MOVE_LIMIT })}">
             <input type="checkbox" id="tournament"${checked(chrome.tournament)} />
@@ -213,19 +329,43 @@ function shell(t: Translate, locale: Locale, chrome: Chrome): string {
     </main>`
 }
 
+function opponentOptions(t: Translate, rival: Opponent): string {
+  const rivals: readonly Opponent[] = ['human', 'easy', 'medium', 'hard']
+  return rivals
+    .map(
+      (value) =>
+        `<option value="${value}"${value === rival ? ' selected' : ''}>` +
+        `${t(`opponent.${value}`)}</option>`,
+    )
+    .join('')
+}
+
+function sideOptions(t: Translate, side: Player): string {
+  const sides: readonly Player[] = ['green', 'red']
+  return sides
+    .map(
+      (value) =>
+        `<option value="${value}"${value === side ? ' selected' : ''}>` +
+        `${t(`player.${value}`)}</option>`,
+    )
+    .join('')
+}
+
 /**
  * The board as it looks when both sides are home, small, in the panel. Which
  * device stands in which row, in what order, and which way a side is going are
  * all things a player has to hold in their head otherwise, and the sheet answers
- * them with a figure rather than with a sentence.
+ * them with a figure rather than with a sentence. It shows the board the way the
+ * player sees it, so it flips with the view.
  */
-function targetMarkup(t: Translate, showCopy: boolean): string {
+function targetMarkup(t: Translate, showCopy: boolean, flip: boolean): string {
+  const position = flip ? flippedPosition(targetPosition()) : targetPosition()
   return (
     `<figcaption>${t('status.target')}</figcaption>` +
     `<svg class="target-board" viewBox="0 0 ${BOARD_SIZE} ${BOARD_SIZE}" role="img" ` +
     `aria-label="${t('a11y.target')}">` +
     // No maker's mark: at this size it is a smudge in the margin.
-    `${diagramMarkup(targetPosition(), {
+    `${diagramMarkup(position, {
       showMakerMark: false,
       ...(showCopy ? { marks: OWNER_MARKS } : {}),
     })}</svg>`
@@ -252,10 +392,19 @@ function collect(root: HTMLElement): View {
     status: need('#status'),
     tournament: need<HTMLInputElement>('#tournament'),
     copy: need<HTMLInputElement>('#copy'),
+    opponent: need<HTMLSelectElement>('#opponent'),
+    side: need<HTMLSelectElement>('#side'),
+    sideField: need('#side-field'),
   }
 }
 
-function drawPieces(view: View, state: GameState, t: Translate, showCopy: boolean): void {
+function drawPieces(
+  view: View,
+  state: GameState,
+  t: Translate,
+  showCopy: boolean,
+  flip: boolean,
+): void {
   const layer = view.board.querySelector('#pieces')
   if (layer === null) return
   const live = new Set<string>()
@@ -280,7 +429,7 @@ function drawPieces(view: View, state: GameState, t: Translate, showCopy: boolea
       layer.append(element)
       view.pieces.set(id, element)
     }
-    const { x, y } = squareOrigin(sq)
+    const { x, y } = squareOrigin(viewSquare(sq, flip))
     element.setAttribute('transform', `translate(${x} ${y})`)
     element.setAttribute('data-square', String(sq))
     element.setAttribute('data-piece', id)
@@ -304,28 +453,34 @@ function describe(piece: Piece, sq: Square, t: Translate): string {
   })
 }
 
-function drawHints(view: View, state: GameState, selected: Square | undefined): void {
+function drawHints(
+  view: View,
+  state: GameState,
+  selected: Square | undefined,
+  flip: boolean,
+): void {
   const shapes: string[] = []
   const moves = availableMoves(state)
+  const origin = (sq: Square) => squareOrigin(viewSquare(sq, flip))
 
   // Every mark lies over a square and takes the clicks meant for it, so each one
   // names the square it covers: a dot marking a destination has to be a way of
   // reaching it, not a hole in the board.
   if (selected !== undefined) {
-    const { x, y } = squareOrigin(selected)
+    const { x, y } = origin(selected)
     shapes.push(
       `<rect class="hint-selected" data-square="${selected}" ` +
         `x="${x}" y="${y}" width="${CELL}" height="${CELL}"/>`,
     )
     for (const move of moves.filter((m: Move) => m.from === selected)) {
-      const to = squareOrigin(move.to)
+      const to = origin(move.to)
       shapes.push(
         `<circle class="hint-move${isJump(move) ? ' hint-jump' : ''}" data-square="${move.to}" ` +
           `cx="${to.x + CELL / 2}" cy="${to.y + CELL / 2}" r="16"/>`,
       )
       // Mark the piece being jumped, so the reason for the long move is visible.
       if (move.over !== undefined) {
-        const over = squareOrigin(move.over)
+        const over = origin(move.over)
         shapes.push(
           `<rect class="hint-over" data-square="${move.over}" ` +
             `x="${over.x}" y="${over.y}" width="${CELL}" height="${CELL}"/>`,
@@ -336,7 +491,7 @@ function drawHints(view: View, state: GameState, selected: Square | undefined): 
   view.hints.innerHTML = shapes.join('')
 }
 
-function drawStatus(view: View, state: GameState, t: Translate): void {
+function drawStatus(view: View, state: GameState, t: Translate, solo: boolean): void {
   const name = (player: 'green' | 'red') => t(`player.${player}`)
 
   if (state.outcome !== undefined) {
@@ -362,12 +517,20 @@ function drawStatus(view: View, state: GameState, t: Translate): void {
     view.turn.dataset.player = state.toMove
   }
 
+  // In a solo game the window belongs to the computer, which always calls, so
+  // the buttons never show; the notice instead voices the call once it is made.
   const pending = state.missedJump
-  view.notice.dataset.open = pending === undefined ? 'no' : 'yes'
-  view.noticeText.textContent =
-    pending === undefined ? '' : t('salta.prompt', { player: name(pending.by) })
-  view.saltaCall.disabled = pending === undefined
-  view.saltaWaive.disabled = pending === undefined
+  const called = solo && state.outcome === undefined && state.mustJump
+  view.notice.dataset.open = (solo ? called : pending !== undefined) ? 'yes' : 'no'
+  view.noticeText.textContent = called
+    ? t('salta.called', { player: name(state.toMove) })
+    : !solo && pending !== undefined
+      ? t('salta.prompt', { player: name(pending.by) })
+      : ''
+  view.saltaCall.hidden = solo
+  view.saltaWaive.hidden = solo
+  view.saltaCall.disabled = solo || pending === undefined
+  view.saltaWaive.disabled = solo || pending === undefined
 
   // Values sit in fixed-width slots so the panel never reflows as counts grow.
   const cell = (player: 'green' | 'red', value: number) =>

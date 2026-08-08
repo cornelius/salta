@@ -364,6 +364,18 @@ body {
   gap: 0.2rem;
 }
 
+/* A field's own display would outrank the attribute without this. */
+[hidden] {
+  display: none !important;
+}
+
+/* Opponent and colour side by side: two selects stacked would cost the panel
+   a row it cannot spare beside the board. */
+.field-row {
+  display: flex;
+  gap: 1.1rem;
+}
+
 .field-label {
   color: var(--ink-soft);
   font-size: 0.8rem;

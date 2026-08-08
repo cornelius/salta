@@ -1,11 +1,12 @@
 # Architecture
 
-Four layers. Each depends only on the ones above it, and the rules depend on
+Five layers. Each depends only on the ones above it, and the rules depend on
 nothing. Why it is arranged this way: ADR 003 [architecture].
 
 | Layer | Directory | Owns | May import |
 |---|---|---|---|
 | Rules | `src/core` | Board geometry, formations, legal moves, game state, scoring | nothing outside itself |
+| Opponent | `src/ai` | Choosing the computer's move | `src/core` |
 | Artwork | `src/render` | SVG for the board, the pieces, and the three devices | `src/core` |
 | Interface | `src/ui` | The DOM, the current game, the current selection | all of the above |
 | Words | `src/i18n` | Message catalogues, one per locale | nothing outside itself |
@@ -41,6 +42,16 @@ thing allowed. `offerableMoves` is wider and includes plain moves that a
 compulsory jump forbids, because the interface has to let a player overlook a
 jump for the opponent to catch it. **Anything reasoning about the game rather than
 presenting it -- a computer opponent above all -- uses `legalMoves`.**
+
+## The opponent layer
+
+`opponent.ts` is the whole of it: `chooseMove`, an alpha-beta search over
+`legalMoves` whose evaluation is the margin of `movesRemaining` -- the number the
+game itself scores. The three strengths are three depths of the same search. It
+plays strictly by the rules on both sides of rule 3: it never overlooks a jump,
+and the interface has it call "Salta" on every jump the human overlooks
+(ADR 006 [computer opponent]). Randomness for tie-breaking is injected, so games
+at the board vary and games under test replay.
 
 ## The artwork layer
 
@@ -83,6 +94,12 @@ slide it. Changing the locale re-renders the shell.
 The panel also carries a small figure of the finished board, which is where the
 order of the formation and the direction of play can be read off rather than
 remembered. It is drawn once per shell, and again when the display mode changes.
+
+Against the computer the same loop runs, with the computer's turn inserted behind
+a short pause so its move reads as a turn taken; the board ignores clicks while
+the computer owes one. The human always plays up the board: a human on red sees
+the view turned half around, which is a remapping of piece squares alone -- the
+printing is symmetric under the turn (ADR 006 [computer opponent]).
 
 Two layout rules the panel obeys, so the board never moves under the player's
 cursor: the Salta prompt keeps its space whether or not it has anything to say,

@@ -21,14 +21,16 @@ that came in the box.
 The same page carries the transcription and the English translation; the switch at
 its top chooses, and `#de` and `#en` link straight to them.
 
-Two players share one screen and take turns. Click a piece, then click where it
-should go.
+Two players share one screen and take turns, or one player takes on the computer
+at a choice of three strengths and either colour, always playing up the board.
+Click a piece, then click where it should go.
 
 ## What is in here
 
 | Path | Contents |
 |---|---|
 | `src/core` | The rules: geometry, formations, moves, scoring |
+| `src/ai` | The computer opponent |
 | `src/render` | The board, the pieces and the three devices, drawn as SVG |
 | `src/ui` | The playing interface |
 | `src/i18n` | English and German |
@@ -71,7 +73,9 @@ a switch rather than the picture, and how the two replaced pieces were identifie
 
 The compulsory jump is reproduced as the sheet describes it rather than as a
 program would enforce it. A player may overlook a jump; it stands unless the
-opponent calls **Salta!**, which takes the move back and forces the jump.
+opponent calls **Salta!**, which takes the move back and forces the jump. The
+computer plays by the rules on both counts: it overlooks nothing, and it always
+calls.
 
 ## Licence
 

@@ -52,8 +52,8 @@ Two consequences that are easy to get wrong:
   `Palette`, and `theme.ts` is the only file there that names a colour. Page
   chrome is a separate matter and lives in the stylesheets.
 - **`src/core` imports nothing outside itself.** No DOM, no colours, no
-  user-facing strings. This is what keeps the rules testable and leaves room for
-  a computer opponent.
+  user-facing strings. This is what keeps the rules testable, and it is all the
+  computer opponent in `src/ai` is allowed to reason over.
 - **User-facing text goes through `src/i18n`.** English is the source catalogue;
   German is typed against it, so a missing key is a type error. Code itself --
   identifiers, comments, CSS classes -- is English, including in the German rules

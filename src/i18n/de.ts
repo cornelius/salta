@@ -28,6 +28,12 @@ export const de: Record<MessageKey, string> = {
   'outcome.draw': 'Unentschieden.',
 
   'control.newGame': 'Neues Spiel',
+  'control.opponent': 'Gegner',
+  'opponent.human': 'Zwei Spieler',
+  'opponent.easy': 'Leicht',
+  'opponent.medium': 'Mittel',
+  'opponent.hard': 'Schwer',
+  'control.youPlay': 'Du spielst',
   'control.tournament': 'Turnier-Regel',
   'control.tournamentHint': 'Nach je {limit} Zügen abbrechen und die Differenz werten.',
   'control.copy': 'Großmutti-Exemplar',

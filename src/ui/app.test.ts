@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { square } from '../core/board'
+import { squareOrigin } from '../render/board'
 import { mount } from './app'
 
 let root: HTMLElement
@@ -21,8 +22,11 @@ function text(selector: string): string {
 }
 
 beforeEach(() => {
-  // The display mode is remembered between visits; no test may inherit it.
+  // Display mode, opponent and colour are remembered between visits; no test
+  // may inherit another's.
   globalThis.localStorage?.removeItem('salta.copy')
+  globalThis.localStorage?.removeItem('salta.opponent')
+  globalThis.localStorage?.removeItem('salta.side')
   document.body.innerHTML = '<div id="app"></div>'
   root = document.querySelector<HTMLElement>('#app') as HTMLElement
   mount(root)
@@ -158,6 +162,93 @@ describe("grandma's copy", () => {
     expect(replacement?.getAttribute('aria-label')).toContain('sun 3')
     // Three devices drawn on, as on the piece it replaces: rim, edge, and three.
     expect(replacement?.querySelectorAll('path')).toHaveLength(5)
+  })
+})
+
+describe('against the computer', () => {
+  /** Deterministic generator, so the computer's replies are scripted too. */
+  function random(seed: number): () => number {
+    let state = seed >>> 0
+    return () => {
+      state = (state * 1664525 + 1013904223) >>> 0
+      return state / 0x100000000
+    }
+  }
+
+  function setSelect(id: string, value: string): void {
+    const select = root.querySelector<HTMLSelectElement>(id)
+    if (select === null) throw new Error(`no control ${id}`)
+    select.value = value
+    select.dispatchEvent(new Event('change', { bubbles: true }))
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('answers the human move after a beat, and locks the board while owing one', () => {
+    setSelect('#opponent', 'easy')
+    move(square(7, 4), square(6, 5))
+    // Red owes its move: the board takes no clicks and offers nothing.
+    clickSquare(square(2, 5))
+    expect(root.querySelectorAll('.hint-selected')).toHaveLength(0)
+    expect(text('#turn')).toContain('Red')
+    vi.advanceTimersByTime(700)
+    expect(text('#turn')).toContain('Green')
+  })
+
+  it('opens the game itself when the human takes red', () => {
+    setSelect('#opponent', 'easy')
+    setSelect('#side', 'red')
+    expect(text('#turn')).toContain('Green')
+    vi.advanceTimersByTime(700)
+    expect(text('#turn')).toContain('Red')
+  })
+
+  it('shows a human playing red the board from their own seat', () => {
+    setSelect('#opponent', 'easy')
+    setSelect('#side', 'red')
+    // Red star one stands on square 9; seen from red's seat that is the near
+    // left corner, where square 90 is drawn. The square it names must not move.
+    const piece = root.querySelector('[data-piece="red-star-1"]')
+    const { x, y } = squareOrigin(90)
+    expect(piece?.getAttribute('data-square')).toBe('9')
+    expect(piece?.getAttribute('transform')).toBe(`translate(${x} ${y})`)
+  })
+
+  it('keeps the Salta buttons out of a solo game', () => {
+    setSelect('#opponent', 'easy')
+    expect(root.querySelector('#salta-call')?.hasAttribute('hidden')).toBe(true)
+    expect(root.querySelector('#salta-waive')?.hasAttribute('hidden')).toBe(true)
+  })
+
+  it('calls Salta itself when the human passes up a jump', () => {
+    // Replayed with a fixed seed, so the easy opponent's moves are a script:
+    // green walks its one-sun out to meet red, red comes to meet it, and after
+    // four turns each the sun on 30 has red on 21 to jump. Green declines it by
+    // stepping back to 41; the computer must send the sun back and demand the jump.
+    document.body.innerHTML = '<div id="app"></div>'
+    root = document.querySelector<HTMLElement>('#app') as HTMLElement
+    mount(root, { rng: random(42) })
+    setSelect('#opponent', 'easy')
+    for (const [from, to] of [
+      [70, 61],
+      [61, 50],
+      [50, 41],
+      [41, 30],
+    ]) {
+      move(from as number, to as number)
+      vi.advanceTimersByTime(700)
+    }
+    move(30, 41)
+    vi.advanceTimersByTime(700)
+    expect(text('#turn')).toBe('Green must jump')
+    expect(text('#notice-text')).toContain('Salta')
+    expect(root.querySelector('[data-piece="green-sun-1"]')?.getAttribute('data-square')).toBe('30')
   })
 })
 
