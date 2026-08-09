@@ -77,6 +77,10 @@ opponent calls **Salta!**, which takes the move back and forces the jump. The
 computer plays by the rules on both counts: it overlooks nothing, and it always
 calls.
 
+## Contributing
+
+Contributions are welcome; [CONTRIBUTING.md](CONTRIBUTING.md) says what to know first, and that patience may be required.
+
 ## Licence
 
 The software, the artwork drawn for it, the transcription and the translations are
