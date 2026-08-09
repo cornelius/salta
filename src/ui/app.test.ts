@@ -220,6 +220,35 @@ describe('against the computer', () => {
     expect(piece?.getAttribute('transform')).toBe(`translate(${x} ${y})`)
   })
 
+  /**
+   * Clicks the printed square drawn where square `drawn` sits, whatever square
+   * it names -- the board as the player points at it, rather than by the name
+   * the mark carries.
+   */
+  function clickPrintedSquare(drawn: number): void {
+    const { x, y } = squareOrigin(drawn)
+    const rect = [...root.querySelectorAll('#printing [data-square]')].find(
+      (element) =>
+        element.getAttribute('x') === String(x) && element.getAttribute('y') === String(y),
+    )
+    if (rect === undefined) throw new Error(`nothing printed at square ${drawn}`)
+    rect.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+  }
+
+  it('takes a click anywhere on the square a human playing red moves to', () => {
+    document.body.innerHTML = '<div id="app"></div>'
+    root = document.querySelector<HTMLElement>('#app') as HTMLElement
+    mount(root, { rng: random(42) })
+    setSelect('#opponent', 'easy')
+    setSelect('#side', 'red')
+    vi.advanceTimersByTime(700)
+    // Red's sun on 21 steps to 30. From red's seat those are drawn at the other
+    // end of the board, and the click lands on the square, not on its dot.
+    clickSquare(21)
+    clickPrintedSquare(69)
+    expect(root.querySelector('#pieces [data-square="30"]')).not.toBeNull()
+  })
+
   it('keeps the Salta buttons out of a solo game', () => {
     setSelect('#opponent', 'easy')
     expect(root.querySelector('#salta-call')?.hasAttribute('hidden')).toBe(true)

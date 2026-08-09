@@ -1,4 +1,4 @@
-import { col, isPlayable, row, SIZE } from '../core/board'
+import { col, isPlayable, row, SIZE, SQUARES } from '../core/board'
 import type { Position } from '../core/setup'
 import type { Square } from '../core/types'
 import { isReplacement, pieceMarkup, replacementMarkup } from './piece'
@@ -25,6 +25,12 @@ export interface BoardOptions {
   readonly showMakerMark?: boolean
   /** Given, the rectangle a later owner ruled onto this copy is drawn over the squares. */
   readonly marks?: OwnerMarks
+  /**
+   * Drawn from the far seat. Nothing printed moves -- squares, frame and mark are
+   * all symmetric under the half turn -- but the square a place on the board
+   * belongs to is the opposite one, and that is what each square names itself.
+   */
+  readonly flip?: boolean
 }
 
 /**
@@ -62,12 +68,13 @@ function ruledFrameMarkup(marks: OwnerMarks): string {
 export function boardMarkup(options: BoardOptions = {}): string {
   const palette = options.palette ?? SET_PALETTE
   const squares: string[] = []
-  for (let sq = 0; sq < SIZE * SIZE; sq++) {
+  for (let sq = 0; sq < SQUARES; sq++) {
     const { x, y } = squareOrigin(sq)
     const fill = isPlayable(sq) ? palette.boardDark : palette.boardLight
+    const named = options.flip === true ? SQUARES - 1 - sq : sq
     squares.push(
       `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" fill="${fill}" ` +
-        `data-square="${sq}" data-row="${row(sq)}" data-col="${col(sq)}"/>`,
+        `data-square="${named}" data-row="${row(named)}" data-col="${col(named)}"/>`,
     )
   }
 

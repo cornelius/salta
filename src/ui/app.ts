@@ -152,7 +152,7 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
   const setCopy = (next: boolean): void => {
     showCopy = next
     rememberCopy(next)
-    view.printing.innerHTML = boardMarkup(showCopy ? { marks: OWNER_MARKS } : {})
+    view.printing.innerHTML = printingMarkup(showCopy, flip())
     view.target.innerHTML = targetMarkup(t, showCopy, flip())
     for (const piece of view.pieces.values()) piece.remove()
     view.pieces.clear()
@@ -164,6 +164,9 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
     selected = undefined
     seen = new Map()
     record()
+    // Changing seats gets here, and the squares of the board are named from the
+    // seat, so the printing is laid again along with the figure in the panel.
+    view.printing.innerHTML = printingMarkup(showCopy, flip())
     view.target.innerHTML = targetMarkup(t, showCopy, flip())
     render()
     scheduleComputer()
@@ -296,7 +299,7 @@ function shell(t: Translate, locale: Locale, chrome: Chrome): string {
     <main class="table">
       <svg class="board" id="board" viewBox="0 0 ${BOARD_SIZE} ${BOARD_SIZE}"
            role="img" aria-label="${t('a11y.board')}">
-        <g id="printing">${boardMarkup(chrome.copy ? { marks: OWNER_MARKS } : {})}</g>
+        <g id="printing">${printingMarkup(chrome.copy, chrome.flip)}</g>
         <g id="hints"></g>
         <g id="pieces"></g>
       </svg>
@@ -340,6 +343,14 @@ function shell(t: Translate, locale: Locale, chrome: Chrome): string {
         </div>
       </aside>
     </main>`
+}
+
+/**
+ * The board under the pieces. Its squares carry the names the clicks are read
+ * by, so it is drawn from the same seat as everything laid on top of it.
+ */
+function printingMarkup(showCopy: boolean, flip: boolean): string {
+  return boardMarkup({ flip, ...(showCopy ? { marks: OWNER_MARKS } : {}) })
 }
 
 function opponentOptions(t: Translate, rival: Opponent): string {
