@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { marked } from 'marked'
 import { defineConfig, type Plugin } from 'vite'
+import { PIECE_SIZE, pieceMarkup } from './src/render/piece'
 
 /**
  * `import text from '../docs/rules.de.md?html'` gives the file as HTML, turned
@@ -38,11 +39,48 @@ function markdown(): Plugin {
   }
 }
 
+/**
+ * The favicon: green's one-moon piece, drawn by the code that draws it on the
+ * board, so the icon in the tab cannot drift from the set. Generated here rather
+ * than checked in, and the link tag is injected into every page for the same
+ * reason the figures on the rules page are drawn live.
+ */
+function favicon(): Plugin {
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${PIECE_SIZE} ${PIECE_SIZE}">` +
+    `${pieceMarkup({ player: 'green', device: 'moon', rank: 1 })}</svg>`
+  let base = '/'
+  return {
+    name: 'salta-favicon',
+    configResolved(config) {
+      base = config.base
+    },
+    transformIndexHtml() {
+      return [
+        {
+          tag: 'link',
+          attrs: { rel: 'icon', type: 'image/svg+xml', href: `${base}favicon.svg` },
+          injectTo: 'head',
+        },
+      ]
+    },
+    configureServer(server) {
+      server.middlewares.use('/favicon.svg', (_req, res) => {
+        res.setHeader('Content-Type', 'image/svg+xml')
+        res.end(svg)
+      })
+    },
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'favicon.svg', source: svg })
+    },
+  }
+}
+
 // GitHub Pages serves the project site from /salta/, so asset URLs must be
 // prefixed in a production build. A dev server runs at the root.
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? '/salta/' : '/',
-  plugins: [markdown()],
+  plugins: [markdown(), favicon()],
   build: {
     rollupOptions: {
       input: {
