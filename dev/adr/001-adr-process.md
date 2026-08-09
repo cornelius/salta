@@ -5,12 +5,7 @@
 
 ## Context
 
-This project reconstructs a physical object from photographs. A lot of what the
-code does is not derivable from the code: why the green side sits at the bottom,
-why a colour is that exact hex, why jumps can be skipped when the rules call them
-compulsory. Those answers are only in the photographs and in a German rules sheet
-from 1899, and without a record they are lost the moment the reasoning is out of
-anyone's head.
+What the code does is in the code; why it does it that way usually is not. Some decisions read the source material where more than one reading was possible -- which side sits at the bottom, how an ambiguous rule is implemented. Others, like the choice of technology or the shape of the architecture, have no source material at all. Either way, the reasoning behind a decision is lost the moment it is out of anyone's head, unless it is written down.
 
 ## Decision
 
@@ -33,13 +28,7 @@ supersedes it and the old one keeps its text with a pointer at the top; the
 archive exists to answer "why was it ever that way", and only that pointer
 distinguishes a dead decision from a live one.
 
-**Single-author mode.** While this project has one author and no external
-consumers, a narrow amendment may be recorded inside the ADR it amends -- a dated
-pointer in the `**Status**` line plus a dated section carrying the change -- rather
-than as a separate record. The superseded text stays where it is; only the
-amendment's location is relaxed. Supersession always gets its own file. This mode
-ends at the first outside contributor, because from then on someone is relying on
-these records as written.
+**Amendments.** A narrow change may be recorded inside the ADR it amends -- a dated pointer in the `**Status**` line plus a dated section carrying the change -- rather than as a separate record. The amended text stays where it is, so the record still answers "why was it ever that way". Supersession always gets its own file.
 
 Live rules do not belong here. An ADR records why a decision was taken; what the
 code does now is in the code, and how to work in the repo is in `AGENTS.md`.

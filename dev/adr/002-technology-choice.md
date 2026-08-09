@@ -12,9 +12,9 @@ of them.
 
 Three things shape the choice beyond that. The artwork is line work traced from
 photographs, and has to scale from a phone to a desktop without going soft. The
-result should be reachable by a link, because the point of it is to be shown to
-family. And two directions are wanted later but not now: a computer opponent, and
-a version that runs as a desktop application.
+result should be reachable by a link, so that playing it costs nothing beyond
+opening one. And two directions are wanted later but not now: a computer
+opponent, and a version that runs as a desktop application.
 
 There is also a quieter requirement. This is a keepsake, not a product. It should
 still build and run in ten years from a plain checkout, which argues against
