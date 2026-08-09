@@ -99,8 +99,9 @@ that named its place would send the click to the mirrored square.
 it back when the page opens, so that leaving for the rules page, reloading, or
 closing the tab does not end the game. It trusts nothing it reads: stored data
 outlives the code that wrote it, so a game that fails any check is dropped and
-the board opens fresh. The computer's memory of repeated positions is not kept,
-so a resumed game starts that count again.
+the board opens fresh (ADR 007 [the game kept between visits]). The computer's
+memory of repeated positions is not kept, so a resumed game starts that count
+again.
 
 The board's frame and squares are drawn once. Piece elements are created once
 each and keyed by piece identity, so a move is a change of transform and CSS can
