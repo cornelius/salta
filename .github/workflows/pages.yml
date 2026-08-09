@@ -27,11 +27,9 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
-      # Turns Pages on for the repository the first time this runs, so the site
-      # needs no setting made by hand.
-      - uses: actions/configure-pages@v6
-        with:
-          enablement: true
+      # Pages is turned on in the repository's settings, by hand and once, with
+      # its source set to GitHub Actions. A workflow token may not do it: the
+      # call needs administration:write, which no `permissions:` block grants.
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
