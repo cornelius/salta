@@ -330,11 +330,6 @@ body {
   flex: 1 1 auto;
 }
 
-.controls .button {
-  align-self: flex-end;
-  margin-top: auto;
-}
-
 .button {
   padding: 0.45rem 1.1rem;
   border: 2px solid var(--frame);
@@ -365,14 +360,19 @@ body {
   cursor: default;
 }
 
+.controls .button {
+  align-self: flex-end;
+  margin-top: auto;
+}
+
 .field {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
 }
 
-/* A field's own display would outrank the attribute without this. */
 [hidden] {
+  /* biome-ignore lint/complexity/noImportantStyles: a field's own display would outrank the attribute without it */
   display: none !important;
 }
 
