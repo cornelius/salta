@@ -281,6 +281,93 @@ describe('against the computer', () => {
   })
 })
 
+describe('giving up a game in progress', () => {
+  function click(selector: string): void {
+    const button = root.querySelector(selector)
+    if (button === null) throw new Error(`no control ${selector}`)
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+  }
+
+  function setSelect(id: string, value: string): void {
+    const select = root.querySelector<HTMLSelectElement>(id)
+    if (select === null) throw new Error(`no control ${id}`)
+    select.value = value
+    select.dispatchEvent(new Event('change', { bubbles: true }))
+  }
+
+  const asking = () => root.querySelector('#notice')?.getAttribute('data-open') === 'yes'
+  const moved = () => root.querySelector('#pieces [data-square="61"]') !== null
+
+  it('starts over without a word when there is nothing to give up', () => {
+    click('#new-game')
+    expect(asking()).toBe(false)
+    expect(text('#status')).toContain('0')
+  })
+
+  it('asks before the new game button throws a game away', () => {
+    move(70, 61)
+    click('#new-game')
+    expect(asking()).toBe(true)
+    // Asked, and nothing done yet: the piece is where the player left it.
+    expect(moved()).toBe(true)
+  })
+
+  it('leaves the game standing when the player keeps playing', () => {
+    move(70, 61)
+    click('#new-game')
+    click('#restart-keep')
+    expect(asking()).toBe(false)
+    expect(moved()).toBe(true)
+  })
+
+  it('starts the new game when the player says so', () => {
+    move(70, 61)
+    click('#new-game')
+    click('#restart-start')
+    expect(asking()).toBe(false)
+    expect(moved()).toBe(false)
+  })
+
+  it('asks before a setting does, and holds the setting until it is answered', () => {
+    move(70, 61)
+    setSelect('#opponent', 'easy')
+    expect(asking()).toBe(true)
+    expect(moved()).toBe(true)
+    // Two players still: the computer has not been let in, and owes no move.
+    vi.useFakeTimers()
+    vi.advanceTimersByTime(700)
+    vi.useRealTimers()
+    expect(moved()).toBe(true)
+  })
+
+  it('puts the control back when the setting is thought better of', () => {
+    move(70, 61)
+    setSelect('#opponent', 'easy')
+    click('#restart-keep')
+    expect(root.querySelector<HTMLSelectElement>('#opponent')?.value).toBe('human')
+    expect(moved()).toBe(true)
+  })
+
+  it('takes the setting up with the new game it starts', () => {
+    move(70, 61)
+    setSelect('#opponent', 'easy')
+    click('#restart-start')
+    expect(root.querySelector<HTMLSelectElement>('#opponent')?.value).toBe('easy')
+    expect(moved()).toBe(false)
+  })
+
+  it('leaves the language and the copy in hand alone: they end no game', () => {
+    move(70, 61)
+    const box = root.querySelector<HTMLInputElement>('#copy')
+    if (box === null) throw new Error('no control for the copy in hand')
+    box.checked = true
+    box.dispatchEvent(new Event('change', { bubbles: true }))
+    setSelect('#locale', 'de')
+    expect(asking()).toBe(false)
+    expect(moved()).toBe(true)
+  })
+})
+
 describe('the language switch', () => {
   it('redraws the page in German without losing the board', () => {
     const select = root.querySelector<HTMLSelectElement>('#locale')

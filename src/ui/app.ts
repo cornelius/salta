@@ -98,6 +98,8 @@ interface View {
   readonly noticeText: HTMLElement
   readonly saltaCall: HTMLButtonElement
   readonly saltaWaive: HTMLButtonElement
+  readonly restartStart: HTMLButtonElement
+  readonly restartKeep: HTMLButtonElement
   readonly status: HTMLElement
   readonly tournament: HTMLInputElement
   readonly copy: HTMLInputElement
@@ -121,6 +123,8 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
   let rival = preferredOpponent()
   let side = preferredSide()
   let thinking: ReturnType<typeof setTimeout> | undefined
+  /** Whether the player has been asked to give up the game under way. */
+  let confirming = false
   /** Every position this game has stood in: the computer's memory against circling. */
   let seen = new Map<string, number>()
 
@@ -159,7 +163,47 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
     render()
   }
 
+  /**
+   * The settings as the controls now stand. A setting is only taken up here, so
+   * a change the player thinks better of never reaches the game or the store,
+   * and several made while the question is open are taken up together.
+   */
+  const adopt = (): void => {
+    const level = view.opponent.value
+    rival = level === 'easy' || level === 'medium' || level === 'hard' ? level : 'human'
+    rememberOpponent(rival)
+    side = view.side.value === 'red' ? 'red' : 'green'
+    rememberSide(side)
+    view.sideField.hidden = !solo()
+    start()
+  }
+
+  /** The controls as the settings now stand: what a declined question puts back. */
+  const revert = (): void => {
+    view.tournament.checked = state.tournament
+    view.opponent.value = rival
+    view.side.value = side
+    view.sideField.hidden = !solo()
+  }
+
+  /**
+   * Every way of starting a game throws away the one under way, so each asks
+   * first -- unless there is nothing to throw away: an untouched board or a game
+   * already decided restarts without a word, or the question becomes something
+   * the player learns to click through.
+   */
+  const askRestart = (): void => {
+    const played = state.moveCount.green + state.moveCount.red
+    if (state.outcome !== undefined || played === 0) {
+      adopt()
+      return
+    }
+    confirming = true
+    render()
+  }
+
   const start = (): void => {
+    confirming = false
     state = newGame({ tournament: view.tournament.checked })
     selected = undefined
     seen = new Map()
@@ -234,23 +278,22 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
       state = waiveSalta(state)
       render()
     })
-    view.tournament.addEventListener('change', start)
+    // Each of these ends the game and begins another, so each goes through the
+    // question. Language and the copy in hand do not: they redraw the board the
+    // game is standing on, and leave the game standing.
+    view.tournament.addEventListener('change', askRestart)
+    view.opponent.addEventListener('change', askRestart)
+    view.side.addEventListener('change', askRestart)
+    root.querySelector('#new-game')?.addEventListener('click', askRestart)
+    view.restartStart.addEventListener('click', adopt)
+    view.restartKeep.addEventListener('click', () => {
+      confirming = false
+      revert()
+      render()
+    })
     view.copy.addEventListener('change', (event) => {
       setCopy((event.target as HTMLInputElement).checked)
     })
-    view.opponent.addEventListener('change', (event) => {
-      const value = (event.target as HTMLSelectElement).value
-      rival = value === 'easy' || value === 'medium' || value === 'hard' ? value : 'human'
-      rememberOpponent(rival)
-      view.sideField.hidden = !solo()
-      start()
-    })
-    view.side.addEventListener('change', (event) => {
-      side = (event.target as HTMLSelectElement).value === 'red' ? 'red' : 'green'
-      rememberSide(side)
-      start()
-    })
-    root.querySelector('#new-game')?.addEventListener('click', start)
     root.querySelector('#locale')?.addEventListener('change', (event) => {
       setLocale((event.target as HTMLSelectElement).value as Locale)
     })
@@ -259,7 +302,7 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
   function render(): void {
     drawPieces(view, state, t, showCopy, flip())
     drawHints(view, state, selected, flip())
-    drawStatus(view, state, t, solo())
+    drawStatus(view, state, t, solo(), confirming)
   }
 
   record()
@@ -312,6 +355,9 @@ function shell(t: Translate, locale: Locale, chrome: Chrome): string {
           <div class="notice-actions">
             <button type="button" class="button primary" id="salta-call">${t('salta.call')}</button>
             <button type="button" class="button" id="salta-waive">${t('salta.letStand')}</button>
+            <button type="button" class="button primary"
+                    id="restart-start">${t('restart.start')}</button>
+            <button type="button" class="button" id="restart-keep">${t('restart.keep')}</button>
           </div>
         </div>
 
@@ -413,6 +459,8 @@ function collect(root: HTMLElement): View {
     noticeText: need('#notice-text'),
     saltaCall: need<HTMLButtonElement>('#salta-call'),
     saltaWaive: need<HTMLButtonElement>('#salta-waive'),
+    restartStart: need<HTMLButtonElement>('#restart-start'),
+    restartKeep: need<HTMLButtonElement>('#restart-keep'),
     status: need('#status'),
     tournament: need<HTMLInputElement>('#tournament'),
     copy: need<HTMLInputElement>('#copy'),
@@ -515,7 +563,13 @@ function drawHints(
   view.hints.innerHTML = shapes.join('')
 }
 
-function drawStatus(view: View, state: GameState, t: Translate, solo: boolean): void {
+function drawStatus(
+  view: View,
+  state: GameState,
+  t: Translate,
+  solo: boolean,
+  confirming: boolean,
+): void {
   const name = (player: 'green' | 'red') => t(`player.${player}`)
 
   if (state.outcome !== undefined) {
@@ -545,16 +599,24 @@ function drawStatus(view: View, state: GameState, t: Translate, solo: boolean): 
   // the buttons never show; the notice instead voices the call once it is made.
   const pending = state.missedJump
   const called = solo && state.outcome === undefined && state.mustJump
-  view.notice.dataset.open = (solo ? called : pending !== undefined) ? 'yes' : 'no'
-  view.noticeText.textContent = called
-    ? t('salta.called', { player: name(state.toMove) })
-    : !solo && pending !== undefined
-      ? t('salta.prompt', { player: name(pending.by) })
-      : ''
-  view.saltaCall.hidden = solo
-  view.saltaWaive.hidden = solo
+  const salta = solo ? called : pending !== undefined
+  // Asked whether to give the game up, the notice carries the question instead.
+  // Nothing is lost by that: what Salta had to say is still true underneath, and
+  // says itself again the moment the game goes on.
+  view.notice.dataset.open = confirming || salta ? 'yes' : 'no'
+  view.noticeText.textContent = confirming
+    ? t('restart.prompt')
+    : called
+      ? t('salta.called', { player: name(state.toMove) })
+      : !solo && pending !== undefined
+        ? t('salta.prompt', { player: name(pending.by) })
+        : ''
+  view.saltaCall.hidden = solo || confirming
+  view.saltaWaive.hidden = solo || confirming
   view.saltaCall.disabled = solo || pending === undefined
   view.saltaWaive.disabled = solo || pending === undefined
+  view.restartStart.hidden = !confirming
+  view.restartKeep.hidden = !confirming
 
   // Values sit in fixed-width slots so the panel never reflows as counts grow.
   const cell = (player: 'green' | 'red', value: number) =>

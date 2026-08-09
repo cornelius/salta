@@ -16,6 +16,10 @@ export const en = {
   'salta.letStand': 'Let it stand',
   'salta.called': 'Salta! {player} must take the jump.',
 
+  'restart.prompt': 'This gives up the game under way and starts a new one.',
+  'restart.start': 'New game',
+  'restart.keep': 'Keep playing',
+
   'status.target': 'Where the pieces end up',
   'status.moves': 'Moves played',
   'status.remaining': 'Moves still to go',

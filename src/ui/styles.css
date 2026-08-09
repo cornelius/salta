@@ -222,8 +222,14 @@ body {
   font-size: 0.95rem;
 }
 
+/*
+ * A label that will not fit beside its neighbour takes the next line whole,
+ * rather than breaking across two inside its own button. Which of them fits is
+ * a matter of the language: the German for "keep playing" is one long word.
+ */
 .notice-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
 }
 
@@ -337,6 +343,7 @@ body {
   color: var(--ink);
   font: inherit;
   font-size: 0.95rem;
+  white-space: nowrap;
   cursor: pointer;
 }
 

@@ -18,6 +18,10 @@ export const de: Record<MessageKey, string> = {
   'salta.letStand': 'Stehen lassen',
   'salta.called': 'Salta! {player} muss springen.',
 
+  'restart.prompt': 'Das gibt das laufende Spiel auf und beginnt ein neues.',
+  'restart.start': 'Neues Spiel',
+  'restart.keep': 'Weiterspielen',
+
   'status.target': 'Wohin die Steine müssen',
   'status.moves': 'Gezogen',
   'status.remaining': 'Noch zu ziehen',
