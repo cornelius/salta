@@ -1,4 +1,4 @@
-import { chooseMove, type Level, type Rng } from '../ai/opponent'
+import { chooseMove, type Level, positionKey, type Rng } from '../ai/opponent'
 import { SQUARES, squareName } from '../core/board'
 import { movesRemaining } from '../core/distance'
 import {
@@ -121,6 +121,13 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
   let rival = preferredOpponent()
   let side = preferredSide()
   let thinking: ReturnType<typeof setTimeout> | undefined
+  /** Every position this game has stood in: the computer's memory against circling. */
+  let seen = new Map<string, number>()
+
+  const record = (): void => {
+    const key = positionKey(state.position)
+    seen.set(key, (seen.get(key) ?? 0) + 1)
+  }
 
   const solo = () => rival !== 'human'
   const flip = () => solo() && side === 'red'
@@ -155,6 +162,8 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
   const start = (): void => {
     state = newGame({ tournament: view.tournament.checked })
     selected = undefined
+    seen = new Map()
+    record()
     view.target.innerHTML = targetMarkup(t, showCopy, flip())
     render()
     scheduleComputer()
@@ -170,6 +179,7 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
       const move = moves.find((m) => m.from === selected && m.to === sq)
       if (move !== undefined) {
         state = play(state, move.from, move.to)
+        record()
         selected = undefined
         render()
         scheduleComputer()
@@ -197,9 +207,10 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
       // nor lets the human's overlooked jump pass. It always calls (ADR 006).
       state = callSalta(state)
     } else {
-      const move = chooseMove(state, rival, rng)
+      const move = chooseMove(state, rival, rng, seen)
       state = play(state, move.from, move.to)
     }
+    record()
     render()
     scheduleComputer()
   }
@@ -212,6 +223,7 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
     })
     view.saltaCall.addEventListener('click', () => {
       state = callSalta(state)
+      record()
       selected = undefined
       render()
     })
@@ -247,6 +259,7 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
     drawStatus(view, state, t, solo())
   }
 
+  record()
   wire()
   render()
   scheduleComputer()

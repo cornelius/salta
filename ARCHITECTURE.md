@@ -45,13 +45,19 @@ presenting it -- a computer opponent above all -- uses `legalMoves`.**
 
 ## The opponent layer
 
-`opponent.ts` is the whole of it: `chooseMove`, an alpha-beta search over
-`legalMoves` whose evaluation is the margin of `movesRemaining` -- the number the
-game itself scores. The three strengths are three depths of the same search. It
-plays strictly by the rules on both sides of rule 3: it never overlooks a jump,
-and the interface has it call "Salta" on every jump the human overlooks
-(ADR 006 [computer opponent]). Randomness for tie-breaking is injected, so games
-at the board vary and games under test replay.
+`opponent.ts` is the whole of it: `chooseMove`, which searches `legalMoves` and
+scores what each side still owes -- `movesRemaining`, measured around the side's
+own parked pieces, because a wrongly packed home reads as nearly finished on an
+empty board while no finishing move exists (ADR 006 [computer opponent],
+amendment). While the sides can still meet, the search is alpha-beta minimax and
+the three strengths are three depths; once every piece is past every enemy the
+game is two separate races, and the search plans consecutive own moves instead.
+The interface hands it every position the game has stood in, and standing there
+again is charged, so trodden ground drains rather than circles. It plays
+strictly by the rules on both sides of rule 3: it never overlooks a jump, and
+the interface has it call "Salta" on every jump the human overlooks. Randomness
+for tie-breaking is injected, so games at the board vary and games under test
+replay.
 
 ## The artwork layer
 

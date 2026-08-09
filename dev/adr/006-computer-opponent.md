@@ -1,6 +1,6 @@
 # ADR 006: a computer opponent that plays by the rules
 
-**Status**: accepted
+**Status**: accepted, amended 2026-08-09 (see Amendment)
 **Date**: 2026-08-08
 
 ## Context
@@ -30,3 +30,11 @@ Depth five costs about a quarter of a second in the worst position measured, whi
 The strengths order themselves: in the suite, three plies beats one from either colour. Anyone wanting a stronger opponent raises a depth or teaches the search to keep in-place state, which ADR 003 already anticipates as a change confined to the core.
 
 The Salta buttons never appear in a solo game -- the window belongs to the computer and it always calls -- so the interface voices the call instead, after the same pause, and the taken-back move slides home the way it came.
+
+## Amendment, 2026-08-09: the endgame taught the evaluation to see blocking
+
+The margin as first shipped counted steps over an empty board, and play promptly found the position that breaks it: a side wrongly packed into its home rows reads as nearly finished while no finishing move exists, every move that would open the jam costs distance now for a gain beyond the horizon, and the computer shuffled forth and back in front of its own wall.
+
+Three changes, each answering a measured failure of the previous one. The distance is now measured around the side's own parked pieces: a path over a piece standing on its own target is charged the two moves that piece needs to step aside and back, and a target square a sibling squats on is charged the same, so backing a blocker out pays the moment it happens rather than several plies too late. Once every piece is past every enemy -- jumps are forward-only, so from then on the sides cannot touch -- the game is two independent races and minimax wastes its depth on replies that no longer matter; from there the search plans the side's own consecutive moves instead, held to a corridor a little above the starting burden, because a packing line never climbs far. And the game's positions are remembered: standing where the game has already stood is charged progressively at the root, which drains the plateaus a memoryless evaluation would circle on -- the original wedge revisited one position twenty-six times.
+
+The evaluation is therefore no longer exactly the printed margin. It is the printed margin measured around blockages the plain count cannot see, which is the smallest departure found that makes a wedged endgame finish; `src/ai/jam.test.ts` holds a wedge that under the original evaluation shuffled forever, and holds it at the fixture size that keeps the suite quick.
