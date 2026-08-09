@@ -37,6 +37,22 @@ function playout(green: Level, red: Level, seed: number): GameState {
   return state
 }
 
+describe('positionKey', () => {
+  it('tells a sun and a star of the same rank apart', () => {
+    const sun: Piece = { player: 'green', device: 'sun', rank: 1 }
+    const star: Piece = { player: 'green', device: 'star', rank: 1 }
+    const one = new Map<Square, Piece>([
+      [52, sun],
+      [34, star],
+    ])
+    const other = new Map<Square, Piece>([
+      [52, star],
+      [34, sun],
+    ])
+    expect(positionKey(one)).not.toBe(positionKey(other))
+  })
+})
+
 describe('chooseMove', () => {
   it('brings the last piece home, at any strength', () => {
     // Both sides stand finished except green's one-star, one step short.

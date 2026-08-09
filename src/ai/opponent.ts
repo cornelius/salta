@@ -367,10 +367,13 @@ function shuffled(moves: readonly Move[], rng: Rng): Move[] {
 
 /** A position as a string, for counting how often the game has stood here. */
 export function positionKey(position: Position): string {
-  return [...position]
-    .map(([sq, p]) => `${sq}:${p.player[0]}${p.device[0]}${p.rank}`)
-    .sort()
-    .join(',')
+  return (
+    [...position]
+      // Two letters of the device, because sun and star share their first.
+      .map(([sq, p]) => `${sq}:${p.player[0]}${p.device.slice(0, 2)}${p.rank}`)
+      .sort()
+      .join(',')
+  )
 }
 
 /**
