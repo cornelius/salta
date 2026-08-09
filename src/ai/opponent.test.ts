@@ -14,7 +14,11 @@ function random(seed: number): () => number {
   }
 }
 
-/** A whole game of the computer against itself, one strength per side. */
+/**
+ * A whole game of the computer against itself, one strength per side, with
+ * every chosen move checked against `legalMoves` -- which narrows to jumps when
+ * one exists, so this also proves the computer takes every compulsory jump.
+ */
 function playout(green: Level, red: Level, seed: number): GameState {
   const rng = random(seed)
   const seen = new Map<string, number>()
@@ -34,13 +38,6 @@ function playout(green: Level, red: Level, seed: number): GameState {
 }
 
 describe('chooseMove', () => {
-  it('never strays outside the legal moves, at any strength', () => {
-    // legalMoves narrows to jumps when one exists, so this also asserts the
-    // computer takes every compulsory jump rather than overlooking one.
-    playout('easy', 'medium', 1)
-    playout('medium', 'easy', 2)
-  }, 60_000)
-
   it('brings the last piece home, at any strength', () => {
     // Both sides stand finished except green's one-star, one step short.
     const position = new Map<Square, Piece>(targetPosition())
@@ -64,7 +61,7 @@ describe('chooseMove', () => {
     }
   })
 
-  it('wins with lookahead against greed', () => {
+  it('stays legal all game, and wins with lookahead against greed', () => {
     for (const [green, red, seed] of [
       ['medium', 'easy', 3],
       ['easy', 'medium', 1],
