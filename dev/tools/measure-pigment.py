@@ -8,9 +8,9 @@
 This is where the numbers in src/render/theme.ts come from. Run it against better
 photographs and the values it prints replace the ones in that file.
 
-The photographs in the repository are reduced from the originals, which the owner
-keeps: see assets/README.md. Every sample below is a pixel position in the reduced
-images, so a fresh set of photographs means new coordinates as well as new values.
+Every sample below is a pixel position in the photographs as they stand in
+assets/photos/, so a fresh set of photographs means new coordinates as well as
+new values.
 
 Method, and why each step is there:
 
