@@ -78,6 +78,8 @@ describe('the game kept between visits', () => {
       }),
       JSON.stringify({ ...stashed(), toMove: 'purple' }),
       JSON.stringify({ ...stashed(), moveCount: { green: 1 } }),
+      JSON.stringify({ ...stashed(), moveCount: { green: -1, red: 0 } }),
+      JSON.stringify({ ...stashed(), outcome: { kind: 'home', winner: 'green', points: 1.5 } }),
       JSON.stringify({ ...stashed(), mustJump: 'yes' }),
       JSON.stringify({ ...stashed(), outcome: { kind: 'home', winner: 'green' } }),
       JSON.stringify({ ...stashed(), missedJump: { by: 'red' } }),

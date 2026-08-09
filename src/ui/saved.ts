@@ -119,10 +119,16 @@ function readPosition(value: unknown): Position | undefined {
   return position
 }
 
+/** Counts and points are whole and never negative; anything else failed to read. */
+function readCount(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : undefined
+}
+
 function readMoveCount(value: unknown): Record<Player, number> | undefined {
   if (!isObject(value)) return undefined
-  const { green, red } = value
-  if (typeof green !== 'number' || typeof red !== 'number') return undefined
+  const green = readCount(value.green)
+  const red = readCount(value.red)
+  if (green === undefined || red === undefined) return undefined
   return { green, red }
 }
 
@@ -150,6 +156,7 @@ function readOutcome(value: unknown): Outcome | undefined {
   if (value.kind === 'draw') return { kind: 'draw' }
   if (value.kind !== 'home' && value.kind !== 'limit') return undefined
   const winner = readPlayer(value.winner)
-  if (winner === undefined || typeof value.points !== 'number') return undefined
-  return { kind: value.kind, winner, points: value.points }
+  const points = readCount(value.points)
+  if (winner === undefined || points === undefined) return undefined
+  return { kind: value.kind, winner, points }
 }
