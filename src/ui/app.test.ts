@@ -22,11 +22,13 @@ function text(selector: string): string {
 }
 
 beforeEach(() => {
-  // Display mode, opponent and colour are remembered between visits; no test
-  // may inherit another's.
+  // Language, display mode, opponent and colour are remembered between visits,
+  // and so is the game itself; no test may inherit another's.
+  globalThis.localStorage?.removeItem('salta.locale')
   globalThis.localStorage?.removeItem('salta.copy')
   globalThis.localStorage?.removeItem('salta.opponent')
   globalThis.localStorage?.removeItem('salta.side')
+  globalThis.localStorage?.removeItem('salta.game')
   document.body.innerHTML = '<div id="app"></div>'
   root = document.querySelector<HTMLElement>('#app') as HTMLElement
   mount(root)
@@ -365,6 +367,30 @@ describe('giving up a game in progress', () => {
     setSelect('#locale', 'de')
     expect(asking()).toBe(false)
     expect(moved()).toBe(true)
+  })
+})
+
+describe('coming back to the page', () => {
+  /** Opens the page again, as following the rules link and returning does. */
+  function reopen(): void {
+    document.body.innerHTML = '<div id="app"></div>'
+    root = document.querySelector<HTMLElement>('#app') as HTMLElement
+    mount(root)
+  }
+
+  it('finds the game standing where it was left', () => {
+    move(70, 61)
+    reopen()
+    expect(root.querySelector('#pieces [data-square="61"]')).not.toBeNull()
+    expect(text('#turn')).toContain('Red')
+  })
+
+  it('opens on a new board when the stored game cannot be read', () => {
+    move(70, 61)
+    globalThis.localStorage?.setItem('salta.game', '{ half a game')
+    reopen()
+    expect(root.querySelector('#pieces [data-square="61"]')).toBeNull()
+    expect(text('#turn')).toContain('Green')
   })
 })
 

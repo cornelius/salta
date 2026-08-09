@@ -27,6 +27,7 @@ import {
 import { BOARD_SIZE, boardMarkup, CELL, diagramMarkup, squareOrigin } from '../render/board'
 import { isReplacement, pieceMarkup, replacementMarkup } from '../render/piece'
 import { OWNER_MARKS } from '../render/theme'
+import { loadGame, saveGame } from './saved'
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
 const COPY_STORAGE_KEY = 'salta.copy'
@@ -117,7 +118,9 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
   const rng = options.rng ?? Math.random
   let locale = preferredLocale()
   let t = translator(locale)
-  let state = newGame()
+  // The game left standing when the page was last closed, if there is one: the
+  // rules are a page away, and going to read them must not cost the game.
+  let state = loadGame() ?? newGame()
   let selected: Square | undefined
   let showCopy = preferredCopy()
   let rival = preferredOpponent()
@@ -300,6 +303,9 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
   }
 
   function render(): void {
+    // Every turn the game takes comes through here, so this is where it is
+    // written down, rather than beside each of the ways it can change.
+    saveGame(state)
     drawPieces(view, state, t, showCopy, flip())
     drawHints(view, state, selected, flip())
     drawStatus(view, state, t, solo(), confirming)

@@ -8,7 +8,7 @@ nothing. Why it is arranged this way: ADR 003 [architecture].
 | Rules | `src/core` | Board geometry, formations, legal moves, game state, scoring | nothing outside itself |
 | Opponent | `src/ai` | Choosing the computer's move | `src/core` |
 | Artwork | `src/render` | SVG for the board, the pieces, and the three devices | `src/core` |
-| Interface | `src/ui` | The DOM, the current game, the current selection | all of the above |
+| Interface | `src/ui` | The DOM, the current game, the current selection, what is kept between visits | all of the above |
 | Words | `src/i18n` | Message catalogues, one per locale | nothing outside itself |
 
 `src/core` holds no DOM reference, no colour, and no English. `src/render`
@@ -90,8 +90,17 @@ hand]).
 
 `ui/app.ts` mounts everything into one element and keeps three things: the game
 state, the selected square, and the current locale. A click resolves to a square
-through a `data-square` attribute, which both the board's squares and the pieces
-carry.
+through a `data-square` attribute, which the board's squares, the pieces and the
+hint marks all carry. It always names the square in the game and never the place
+on the drawing: the two part company when the board is turned around, and a mark
+that named its place would send the click to the mirrored square.
+
+`ui/saved.ts` writes the game to the browser's store after every turn and reads
+it back when the page opens, so that leaving for the rules page, reloading, or
+closing the tab does not end the game. It trusts nothing it reads: stored data
+outlives the code that wrote it, so a game that fails any check is dropped and
+the board opens fresh. The computer's memory of repeated positions is not kept,
+so a resumed game starts that count again.
 
 The board's frame and squares are drawn once. Piece elements are created once
 each and keyed by piece identity, so a move is a change of transform and CSS can
@@ -104,8 +113,13 @@ remembered. It is drawn once per shell, and again when the display mode changes.
 Against the computer the same loop runs, with the computer's turn inserted behind
 a short pause so its move reads as a turn taken; the board ignores clicks while
 the computer owes one. The human always plays up the board: a human on red sees
-the view turned half around, which is a remapping of piece squares alone -- the
-printing is symmetric under the turn (ADR 006 [computer opponent]).
+the view turned half around. Nothing printed moves under that turn -- squares,
+frame and maker's mark are all symmetric -- but every square, piece and mark is
+named from the seat the board is drawn for (ADR 006 [computer opponent]).
+
+The Salta prompt's slot carries one other thing: every way of starting a game --
+the button and the three settings that restart -- puts the question there first
+when a game is under way, and a setting is only taken up once it is answered.
 
 Two layout rules the panel obeys, so the board never moves under the player's
 cursor: the Salta prompt keeps its space whether or not it has anything to say,
