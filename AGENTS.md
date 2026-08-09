@@ -1,7 +1,8 @@
 # Working in this repository
 
 Salta, the 1899 board game, reconstructed from photographs of an original set and
-playable in the browser. Two players share one screen and take turns.
+playable in the browser. Two players share one screen and take turns, or one
+player takes on the computer.
 
 ## Commands
 
