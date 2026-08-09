@@ -18,8 +18,8 @@ that came in the box.
 
 **Play it: <https://cornelius.github.io/salta/>**
 **The rules as they were printed: <https://cornelius.github.io/salta/rules/>**
-The same page carries the transcription and the English translation; the switch at
-its top chooses, and `#de` and `#en` link straight to them.
+The same page carries the transcription and the English and Norwegian translations;
+the switch at its top chooses, and `#de`, `#en` and `#nb` link straight to them.
 
 Two players share one screen and take turns, or one player takes on the computer
 at a choice of three strengths and either colour, always playing up the board.
@@ -79,7 +79,7 @@ calls.
 
 ## Licence
 
-The software, the artwork drawn for it, the transcription and the translation are
+The software, the artwork drawn for it, the transcription and the translations are
 under the Apache License 2.0; see `LICENSE` and `NOTICE`. The game itself, its
 1899 rules, and the artwork of the edition reconstructed here are in the public
 domain. UnifrakturMaguntia, used by the rules facsimile, is under the SIL Open

@@ -24,7 +24,7 @@ make preview                    # serve the production build
 | `ARCHITECTURE.md` | Where code goes, what each layer owns, what may import what |
 | `dev/adr/` | Why the project looks the way it does |
 | `docs/rules.de.md` | The 1899 rules, transcribed |
-| `docs/rules.en.md` | The same, translated |
+| `docs/rules.en.md`, `docs/rules.nb.md` | The same, translated |
 | `docs/history.md` | Where the game came from, and what is known about this set |
 | `assets/README.md` | What each photograph shows and what was derived from it |
 

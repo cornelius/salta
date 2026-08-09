@@ -4,10 +4,11 @@
  * The facsimile is the sheet as it was printed, in Fraktur and in 1899 German,
  * which is not a thing everyone can read. The same rules transcribed, and the
  * same rules translated, come straight out of docs/ -- one text each, not a copy
- * of one -- and the page swaps between the three without going anywhere.
+ * of one -- and the page swaps between them without going anywhere.
  */
 import de from '../docs/rules.de.md?html'
 import en from '../docs/rules.en.md?html'
+import nb from '../docs/rules.nb.md?html'
 import { preferredLocale, translator } from '../src/i18n'
 
 const FACSIMILE = 'facsimile'
@@ -15,6 +16,7 @@ const FACSIMILE = 'facsimile'
 const READABLE: Record<string, { readonly html: string; readonly lang: string }> = {
   de: { html: de, lang: 'de' },
   en: { html: en, lang: 'en' },
+  nb: { html: nb, lang: 'nb' },
 }
 
 const facsimile = document.querySelector<HTMLElement>('#facsimile')

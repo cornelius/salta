@@ -3,7 +3,7 @@
 **Ein Brettspiel für 2 Personen.**
 (Gesetzlich geschützt.)
 
-> Transkription des gedruckten Regelblatts, das dem Spiel beilag. Die Vorlage ist in Fraktur gesetzt und liegt als `assets/photos/rules-front-flat.jpg` und `assets/photos/rules-back-flat.jpg` im Repository. Übersetzung: [rules.en.md](rules.en.md).
+> Transkription des gedruckten Regelblatts, das dem Spiel beilag. Die Vorlage ist in Fraktur gesetzt und liegt als `assets/photos/rules-front-flat.jpg` und `assets/photos/rules-back-flat.jpg` im Repository. Übersetzungen: [rules.en.md](rules.en.md), [rules.nb.md](rules.nb.md).
 >
 > Der Text folgt dem Original Wort für Wort, einschließlich seiner Eigenheiten in Rechtschreibung und Zeichensetzung. Sperrung im Satz ist als **Fettdruck** wiedergegeben. Die beiden Diagramme sind hier als Tabellen wiedergegeben; die originalgetreue Darstellung steht unter [/rules/](../rules/).
 

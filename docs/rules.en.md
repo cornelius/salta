@@ -3,7 +3,7 @@
 **A board game for two players.**
 (Protected by law.)
 
-> English translation of the printed rules sheet that came with the game. The German transcription is in [rules.de.md](rules.de.md), and the original sheet is photographed in `assets/photos/`. A rendering in the style of the printed sheet is at [/rules/](../rules/).
+> English translation of the printed rules sheet that came with the game. The German transcription is in [rules.de.md](rules.de.md), the Norwegian translation in [rules.nb.md](rules.nb.md), and the original sheet is photographed in `assets/photos/`. A rendering in the style of the printed sheet is at [/rules/](../rules/).
 >
 > The translation stays close to the 1899 wording rather than modernising it. Emphasis follows the original's letter-spacing. Two terms are left as they stand: **Points**, the unit the rules score in, and **Salta** itself, which is the word a player shouts.
 
