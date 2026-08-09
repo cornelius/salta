@@ -1,24 +1,39 @@
 import { de } from './de'
 import { en, type MessageKey } from './en'
+import { nb } from './nb'
 
-export type Locale = 'en' | 'de'
-export const LOCALES: readonly Locale[] = ['en', 'de']
-export const LOCALE_NAMES: Record<Locale, string> = { en: 'English', de: 'Deutsch' }
+export type Locale = 'en' | 'de' | 'nb'
+export const LOCALES: readonly Locale[] = ['en', 'de', 'nb']
+export const LOCALE_NAMES: Record<Locale, string> = {
+  en: 'English',
+  de: 'Deutsch',
+  nb: 'Norsk',
+}
 
-const CATALOGUES: Record<Locale, Record<MessageKey, string>> = { en, de }
+const CATALOGUES: Record<Locale, Record<MessageKey, string>> = { en, de, nb }
 const STORAGE_KEY = 'salta.locale'
 
 function isLocale(value: string | null): value is Locale {
   return value !== null && (LOCALES as readonly string[]).includes(value)
 }
 
+/**
+ * Tags that ask for a catalogue without naming it. Norwegian is two written
+ * standards under one macrolanguage, and a browser may ask for either or for
+ * neither: `nb-NO` names Bokmål, `no` names the macrolanguage, and `nn` names
+ * Nynorsk, which is not what is written here but is nearer to it than English.
+ */
+const ALIASES: Record<string, Locale> = { no: 'nb', nn: 'nb' }
+
 /** The locale to open with: a remembered choice, else the browser's, else English. */
 export function preferredLocale(): Locale {
   const stored = globalThis.localStorage?.getItem(STORAGE_KEY) ?? null
   if (isLocale(stored)) return stored
   for (const tag of globalThis.navigator?.languages ?? []) {
-    const base = tag.split('-')[0]
-    if (isLocale(base ?? null)) return base as Locale
+    const base = tag.split('-')[0] ?? null
+    if (isLocale(base)) return base
+    const alias = base === null ? undefined : ALIASES[base]
+    if (alias !== undefined) return alias
   }
   return 'en'
 }

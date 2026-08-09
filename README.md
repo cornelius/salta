@@ -33,7 +33,7 @@ Click a piece, then click where it should go.
 | `src/ai` | The computer opponent |
 | `src/render` | The board, the pieces and the three devices, drawn as SVG |
 | `src/ui` | The playing interface |
-| `src/i18n` | English and German |
+| `src/i18n` | The interface in English, German and Norwegian |
 | `rules/` | The 1899 rules sheet as printed, and the readable versions beside it |
 | `docs/` | The rules transcribed and translated, and where the game came from |
 | `assets/` | The photographs everything was derived from |

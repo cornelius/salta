@@ -118,6 +118,9 @@ export function mount(root: HTMLElement, options: MountOptions = {}): void {
   const rng = options.rng ?? Math.random
   let locale = preferredLocale()
   let t = translator(locale)
+  // The page is served declaring English, and the language it is actually read
+  // in is only known here. A screen reader is otherwise told the wrong one.
+  document.documentElement.lang = locale
   // The game left standing when the page was last closed, if there is one: the
   // rules are a page away, and going to read them must not cost the game.
   let state = loadGame() ?? newGame()
