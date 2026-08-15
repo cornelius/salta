@@ -13,10 +13,21 @@ import { preferredLocale, translator } from '../src/i18n'
 
 const FACSIMILE = 'facsimile'
 
-const READABLE: Record<string, { readonly html: string; readonly lang: string }> = {
+type Readable = { readonly html: string; readonly lang: string }
+
+const READABLE: Record<string, Readable> = {
   de: { html: de, lang: 'de' },
   en: { html: en, lang: 'en' },
   nb: { html: nb, lang: 'nb' },
+}
+
+/**
+ * The view named in the address is a string from outside, and a plain index
+ * answers for what every object inherits as readily as for what this one holds:
+ * `#constructor` and `#__proto__` would both come back as something.
+ */
+function readableFor(view: string): Readable | undefined {
+  return Object.hasOwn(READABLE, view) ? READABLE[view] : undefined
 }
 
 const facsimile = document.querySelector<HTMLElement>('#facsimile')
@@ -35,7 +46,7 @@ const facsimileButton = document.querySelector('[data-view="facsimile"]')
 if (facsimileButton !== null) facsimileButton.textContent = t('rules.facsimile')
 
 function show(view: string): void {
-  const readable = READABLE[view]
+  const readable = readableFor(view)
   if (facsimile !== null) facsimile.hidden = readable !== undefined
   if (reader !== null) {
     reader.hidden = readable === undefined
@@ -65,4 +76,4 @@ for (const button of buttons) {
 }
 
 const asked = window.location.hash.slice(1)
-if (READABLE[asked] !== undefined) show(asked)
+if (readableFor(asked) !== undefined) show(asked)
