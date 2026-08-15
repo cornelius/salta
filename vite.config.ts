@@ -8,10 +8,10 @@ import { PIECE_SIZE, pieceMarkup } from './src/render/piece'
  * `import text from '../docs/rules.de.md?html'` gives the file as HTML, turned
  * at build time so that nothing about Markdown reaches the browser.
  *
- * The rules page shows the two readable rules texts this way rather than keeping
- * a second copy of them: `docs/rules.de.md` and `docs/rules.en.md` are where the
- * transcription and the translation live, and a page that restated them would be
- * a page that drifts from them.
+ * The rules page shows the readable rules texts this way rather than keeping a
+ * second copy of them: the `docs/rules.*.md` files are where the transcription
+ * and the translations live, and a page that restated them would be a page that
+ * drifts from them.
  *
  * The note each file opens with is dropped. It orients someone reading the
  * repository -- which file is which, where the photographs are -- and its links

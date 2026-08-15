@@ -133,8 +133,8 @@ them.
 sheet, which draws its two figures from `src/render` in the print palette. Both
 are Vite inputs; see `vite.config.ts`.
 
-The rules page also carries the two readable versions, and `rules/reader.ts`
-switches between the three. They are not written into the page: a plugin in
-`vite.config.ts` turns `docs/rules.de.md` and `docs/rules.en.md` into HTML at
-build time, so the published text and the file in `docs/` cannot differ
+The rules page also carries the readable versions, and `rules/reader.ts`
+switches between them and the facsimile. They are not written into the page: a
+plugin in `vite.config.ts` turns the `docs/rules.*.md` files into HTML at build
+time, so the published text and the file in `docs/` cannot differ
 (ADR 005 [readable-rules-on-the-page]).

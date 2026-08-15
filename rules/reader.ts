@@ -1,5 +1,5 @@
 /**
- * The switch at the top of the rules page, and the two readable texts it shows.
+ * The switch at the top of the rules page, and the readable texts it shows.
  *
  * The facsimile is the sheet as it was printed, in Fraktur and in 1899 German,
  * which is not a thing everyone can read. The same rules transcribed, and the
@@ -36,7 +36,7 @@ const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-view]')]
 
 /**
  * The switch is chrome, not the sheet, so it speaks whichever language the game
- * was last set to. The two readable versions name themselves and stay as they
+ * was last set to. The readable versions name themselves and stay as they
  * are: Deutsch is Deutsch in any language.
  */
 const t = translator(preferredLocale())
