@@ -1,24 +1,29 @@
 // @vitest-environment happy-dom
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
  * The switch at the top of the rules page, driven from the address rather than
  * from a click. A fragment is a string from outside, and the page has to stand
  * whatever it says.
+ *
+ * The page is the shipped one rather than a copy of the parts this module
+ * happens to reach for, so that renaming one of them in `index.html` fails here
+ * instead of only in a browser. Its own script tags come out first: the module
+ * under test is imported directly, and happy-dom would otherwise try to fetch
+ * them and report the refusal for every case.
  */
+const BODY = (() => {
+  const html = readFileSync(resolve(import.meta.dirname, 'index.html'), 'utf8')
+  const open = html.indexOf('<body>') + '<body>'.length
+  const close = html.indexOf('</body>')
+  if (open < '<body>'.length || close < 0) throw new Error('no body in index.html')
+  return html.slice(open, close).replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, '')
+})()
 
 function page(): void {
-  document.body.innerHTML = `
-    <nav>
-      <span id="views-label"></span>
-      <button type="button" data-view="facsimile" aria-pressed="true"></button>
-      <button type="button" data-view="de" aria-pressed="false"></button>
-      <button type="button" data-view="en" aria-pressed="false"></button>
-      <button type="button" data-view="nb" aria-pressed="false"></button>
-    </nav>
-    <div id="facsimile"></div>
-    <article class="reader" id="reader" hidden></article>
-  `
+  document.body.innerHTML = BODY
 }
 
 /** The page opens once per case, so the module runs its top-level code afresh. */
