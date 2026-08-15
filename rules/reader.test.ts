@@ -16,9 +16,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
  */
 const BODY = (() => {
   const html = readFileSync(resolve(import.meta.dirname, 'index.html'), 'utf8')
-  const open = html.indexOf('<body>') + '<body>'.length
+  const opening = /<body[^>]*>/.exec(html)
   const close = html.indexOf('</body>')
-  if (open < '<body>'.length || close < 0) throw new Error('no body in index.html')
+  if (opening === null || close < 0) throw new Error('no body in index.html')
+  const open = opening.index + opening[0].length
   return html.slice(open, close).replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, '')
 })()
 
