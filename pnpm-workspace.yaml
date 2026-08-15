@@ -2,10 +2,15 @@
 # release has to survive a day of public scrutiny before it can land here.
 minimumReleaseAge: 1440
 
+# The node types describe the node in mise.toml, so the range is written here
+# once and referenced as `catalog:` wherever it is needed.
+catalog:
+  '@types/node': ^24.13.3
+
 # happy-dom and some of its dependencies ask for their own @types/node, which
 # would otherwise install a second copy a major ahead of the node in mise.toml.
 overrides:
-  '@types/node': ^24.13.3
+  '@types/node': 'catalog:'
 
 # Install-time scripts are refused unless listed. esbuild's postinstall links the
 # platform binary Vite needs; nothing else here runs at install.
